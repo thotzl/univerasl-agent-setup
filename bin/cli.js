@@ -399,6 +399,9 @@ async function main() {
       const destFile = path.join(skillTargetDir, "SKILL.md");
 
       try {
+        // Explicitly wipe the old skill directory to guarantee a clean, non-polluted replacement and prevent orphaned files
+        await fs.rm(skillTargetDir, { recursive: true, force: true });
+
         // Create directory for the skill
         await fs.mkdir(skillTargetDir, { recursive: true });
 
