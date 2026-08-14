@@ -195,9 +195,9 @@ async function runE2ETests() {
 
     await runCliHeadless(TEST_DIR, "overwrite", "1,2,5");
     await verifyInstallation(TEST_DIR, 3, false, [
-      "01-behavioral-baseline.md",
-      "02-analytical-shortcuts.md",
-      "04-code-craft.md",
+      "01-core-behavioral-baseline.md",
+      "02-core-analytical-shortcuts.md",
+      "04-core-code-craft.md",
     ]);
     console.log("✓ Scenario 2: PASSED\n");
 
@@ -217,8 +217,8 @@ async function runE2ETests() {
 
     await runCliHeadless(TEST_DIR, "safe", "1,2");
     await verifyInstallation(TEST_DIR, 2, true, [
-      "01-behavioral-baseline.md",
-      "02-analytical-shortcuts.md",
+      "01-core-behavioral-baseline.md",
+      "02-core-analytical-shortcuts.md",
     ]);
 
     // Verify custom original content was preserved

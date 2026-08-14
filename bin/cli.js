@@ -85,57 +85,57 @@ async function main() {
   const modules = [
     {
       id: "1",
-      name: "01-behavioral-baseline.md",
+      name: "01-core-behavioral-baseline.md",
       desc: "Core direct tone, sparring partner rules",
     },
     {
       id: "2",
-      name: "02-analytical-shortcuts.md",
+      name: "02-core-analytical-shortcuts.md",
       desc: "AIC, CoT, MECE, Raw, Inquiry directives",
     },
     {
       id: "3",
-      name: "03-vibe-coding.md",
+      name: "03-core-vibe-coding.md",
       desc: "Schema-first, DoD, Phase-gates engineering standard",
     },
     {
       id: "4",
-      name: "10-context-management.md",
+      name: "10-core-context-management.md",
       desc: "Extractive compression & local script sandbox",
     },
     {
       id: "5",
-      name: "04-code-craft.md",
+      name: "04-core-code-craft.md",
       desc: "Implement-Review-Simplify, KISS, Pre-flight checks",
     },
     {
       id: "6",
-      name: "05-technical-standards.md",
+      name: "05-core-technical-standards.md",
       desc: "Data-logic separation (ECS), stable interfaces",
     },
     {
       id: "7",
-      name: "06-testing-strategies.md",
+      name: "06-core-testing-strategies.md",
       desc: "Reproduction-first, surgical mocking rules",
     },
     {
       id: "8",
-      name: "07-database-safety.md",
+      name: "07-core-database-safety.md",
       desc: "No experimental rollbacks, clean local resets",
     },
     {
       id: "9",
-      name: "08-ops-and-ticketing.md",
+      name: "08-core-ops-and-ticketing.md",
       desc: "Markdown ticketing (.tickets/), atomic changelogs",
     },
     {
       id: "10",
-      name: "09-browser-automation.md",
+      name: "09-core-browser-automation.md",
       desc: "WebMCP & structured state-injection (Redux/Zustand)",
     },
     {
       id: "11",
-      name: "11-skill-creator.md",
+      name: "11-core-skill-creator.md",
       desc: "Agnostic guidelines to create modular agent skills",
     },
   ];
