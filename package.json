@@ -1,0 +1,21 @@
+{
+  "name": "@torsten/universal-agent-setup",
+  "version": "1.0.0",
+  "description": "Deterministic, universal agent scaffolding and modular skills installer",
+  "type": "module",
+  "bin": {
+    "agent-setup": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "node test/cli.test.js"
+  },
+  "keywords": [
+    "agents",
+    "scaffolding",
+    "automation",
+    "skills",
+    "workflows"
+  ],
+  "author": "Torsten",
+  "license": "MIT"
+}

@@ -1,0 +1,6 @@
+# Standard repository gitignore
+node_modules/
+.DS_Store
+.agents/artifacts/
+.agents/state/
+test_sandbox_shared/

@@ -1,0 +1,34 @@
+# ==============================================================================
+#                 Universal AI Agent Context Indexing Rules (.aiignore)
+# ==============================================================================
+# This file defines directory exclusion and inclusion boundaries for all AI agents.
+# Standard production/build ignores prevent context-window pollution, while the
+# explicit un-ignore section forces agents to index the essential scaffolding files.
+
+# ----------------- 1. General Project Ignores -----------------
+node_modules/
+bower_components/
+.npm/
+.yarn/
+.bun/
+out/
+dist/
+build/
+bin/
+target/
+.gradle/
+.idea/
+.vscode/
+*.log
+*.lock
+*.hprof
+
+# ----------------- 2. AI Scaffolding Core Inclusions -----------------
+# CRITICAL: Force the AI engine to fully index and prioritize the .agents configuration folder,
+# bypassing any global .gitignore patterns that would normally exclude hidden directories.
+!.agents/
+!.agents/*
+!.agents/**/*
+!AGENTS.md
+!*AGENTS.md
+!*agents.md
