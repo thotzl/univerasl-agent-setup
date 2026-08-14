@@ -44,6 +44,36 @@ npm test      # Runs the comprehensive E2E and compliance test suite
 
 ---
 
+## 🛠️ Troubleshooting & Manual Redirection
+
+If the installer encounters file-permission or write restrictions, it will gracefully warn you in the console. If any of the agent-typical files (`.cursorrules`, `.windsurfrules`, `.clinerules`, `.copilotrules`) cannot be written automatically, simply **manually paste** the following redirection block at the top/bottom of your respective editor rule file:
+
+```markdown
+# ==============================================================================
+
+# Universal AI Agent & Copilot Redirection
+
+# ==============================================================================
+
+# This workspace utilizes a unified cognitive rule-structure. To prevent context
+
+# drift, hallucinations, or anti-hallucination rule violations, ALL AI agents
+
+# (Cursor, Copilot, Windsurf, Gemini, Cline, Roo Code, etc.) working inside this
+
+# codebase MUST read, internalize, and strictly prioritize:
+
+#
+
+# 1. The master root mandates in: AGENTS.md
+
+# 2. The compiled, flattened specialized skills in: .agents/skills/
+
+# ==============================================================================
+```
+
+---
+
 ## 📓 Official Wiki Documentation
 
 Click any link below to jump directly to its beautifully rendered, official documentation page on the GitHub Wiki:
