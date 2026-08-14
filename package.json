@@ -1,5 +1,5 @@
 {
-  "name": "@torsten/universal-agent-setup",
+  "name": "@universal/agent-setup",
   "version": "1.0.0",
   "description": "Deterministic, universal agent scaffolding and modular skills installer",
   "type": "module",
@@ -16,6 +16,6 @@
     "skills",
     "workflows"
   ],
-  "author": "Torsten",
+  "author": "Universal Agent Setup Team",
   "license": "MIT"
 }

@@ -2,7 +2,8 @@ import os
 import re
 import yaml
 
-SKILLS_DIR = "/home/torsten/projects/universal-agent-setup/template/skills"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SKILLS_DIR = os.path.join(BASE_DIR, "../template/skills")
 
 def audit_file(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
