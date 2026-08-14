@@ -8,10 +8,10 @@
 
 ## Quick Start (Installation)
 
-To bootstrap or integrate the scaffolding into any target repository, navigate to your target project directory and execute the installer using its direct path:
+To bootstrap or integrate the scaffolding into any target repository, navigate to your target project directory and execute the installer using its NPM script prefix:
 
 ```bash
-node ~/projects/universal-agent-setup/bin/cli.js
+npm start --prefix ~/projects/universal-agent-setup
 ```
 
 Alternatively, if you are working directly inside the `universal-agent-setup` repository, you can start the installer or run the tests using:

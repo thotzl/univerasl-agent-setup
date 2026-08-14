@@ -30,9 +30,9 @@ universal-agent-setup/
 To bootstrap or integrate the scaffolding into any target repository:
 
 1. Navigate to your target project folder.
-2. Run the interactive installer locally using its absolute path:
+2. Run the interactive installer locally using its absolute NPM prefix path:
    ```bash
-   node ~/projects/universal-agent-setup/bin/cli.js
+   npm start --prefix ~/projects/universal-agent-setup
    ```
 
 Alternatively, if you are working directly inside the `universal-agent-setup` repository, you can manage the installer using the package scripts:

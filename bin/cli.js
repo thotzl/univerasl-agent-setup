@@ -72,7 +72,8 @@ async function main() {
 
   const cliOptions = parseArgs();
   
-  let targetDir = process.cwd();
+  const originalCwd = process.env.INIT_CWD || process.cwd();
+  let targetDir = originalCwd;
   let overwriteMode = false;
   let selectedFiles = [];
   
@@ -96,7 +97,7 @@ async function main() {
     
     // 1. Resolve target
     const targetInput = cliOptions.target || '.';
-    targetDir = path.resolve(process.cwd(), targetInput);
+    targetDir = path.resolve(originalCwd, targetInput);
     
     // 2. Resolve mode
     const modeInput = cliOptions.mode || 'safe';
@@ -122,7 +123,7 @@ async function main() {
     try {
       // 1. Ask Target Directory
       const targetInput = await askQuestion(rl, 'Enter target installation directory', '.');
-      targetDir = path.resolve(process.cwd(), targetInput);
+      targetDir = path.resolve(originalCwd, targetInput);
       
       // 2. Ask Integration Mode
       console.log('\nSelect Installation Mode:');
