@@ -8,10 +8,17 @@
 
 ## Quick Start (Installation)
 
-To bootstrap or integrate the scaffolding into any target repository, navigate to the target project directory and execute the installer:
+To bootstrap or integrate the scaffolding into any target repository, navigate to your target project directory and execute the installer using its direct path:
 
 ```bash
 node ~/projects/universal-agent-setup/bin/cli.js
+```
+
+Alternatively, if you are working directly inside the `universal-agent-setup` repository, you can start the installer or run the tests using:
+
+```bash
+npm start     # Runs the interactive CLI installer
+npm test      # Runs the comprehensive E2E and compliance test suite
 ```
 
 ### Modular Skills Directory

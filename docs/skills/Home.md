@@ -31,10 +31,17 @@ universal-agent-setup/
 To bootstrap or integrate the scaffolding into any target repository:
 
 1. Navigate to your target project folder.
-2. Run the interactive installer locally:
+2. Run the interactive installer locally using its absolute path:
    ```bash
    node ~/projects/universal-agent-setup/bin/cli.js
    ```
+
+Alternatively, if you are working directly inside the `universal-agent-setup` repository, you can manage the installer using the package scripts:
+
+```bash
+npm start     # Runs the interactive CLI installer
+npm test      # Runs the E2E and compliance test suite
+```
 
 ### Installation Modes:
 - **Safe Merge (Default):** Appends the unyielding behavioral rules to your existing `AGENTS.md` inside a `# --- UNIVERSAL AGENT DIRECTIVES ---` block and copies selected skills without deleting existing project-specific skills.
