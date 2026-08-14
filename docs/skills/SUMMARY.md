@@ -1,6 +1,6 @@
 # Table of Contents
 
-* [Introduction](../../README.md)
+* [Introduction](Home.md)
 * [Universal Skills Overview](SUMMARY.md)
   * [01. Behavioral Baseline](01-behavioral-baseline.md)
   * [02. Analytical Shortcuts](02-analytical-shortcuts.md)
