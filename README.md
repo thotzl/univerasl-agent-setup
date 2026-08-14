@@ -2,7 +2,7 @@
 
 > **📓 Official Documentation & Wiki:** The entire, comprehensive guide, installation how-to, architecture overview, and modular skill documentation has been consolidated under the project's GitHub Wiki.
 
-### 🌐 [Visit the Live GitHub Wiki](https://github.com/thotzl/univerasl-agent-setup/wiki)
+### 🌐 [Visit the Live GitHub Wiki / Documentation Home](https://github.com/thotzl/univerasl-agent-setup/wiki)
 
 ---
 
@@ -21,19 +21,19 @@ npm start     # Runs the interactive CLI installer
 npm test      # Runs the comprehensive E2E and compliance test suite
 ```
 
-### Local Wiki Documentation
+### 📓 Official Wiki Documentation
 
-The full catalog of modular, compiled skills is documented in detail in our local `wiki/` submodule. Browse the documentation files directly in the repository or through the Wiki sidebar:
+Click any link below to jump directly to its beautifully rendered, official documentation page on the GitHub Wiki:
 
-- [Wiki Landing Page (Home)](wiki/Home.md)
-- [01. Behavioral Baseline Guide](wiki/01-behavioral-baseline.md)
-- [02. Analytical Shortcuts Guide](wiki/02-analytical-shortcuts.md)
-- [03. Vibe Coding Standard Guide](wiki/03-vibe-coding.md)
-- [04. Code Craft Guide](wiki/04-code-craft.md)
-- [05. Technical Standards Guide](wiki/05-technical-standards.md)
-- [06. Testing Strategies Guide](wiki/06-testing-strategies.md)
-- [07. Database Safety Guide](wiki/07-database-safety.md)
-- [08. Operations & Ticketing Guide](wiki/08-ops-and-ticketing.md)
-- [09. Browser Automation Guide](wiki/09-browser-automation.md)
-- [10. Context Management Guide](wiki/10-context-management.md)
-- [11. Skill Creator Guide](wiki/11-skill-creator.md)
+- [Wiki Landing Page (Home)](https://github.com/thotzl/univerasl-agent-setup/wiki)
+- [01. Behavioral Baseline Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/01-behavioral-baseline)
+- [02. Analytical Shortcuts Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/02-analytical-shortcuts)
+- [03. Vibe Coding Standard Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/03-vibe-coding)
+- [04. Code Craft Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/04-code-craft)
+- [05. Technical Standards Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/05-technical-standards)
+- [06. Testing Strategies Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/06-testing-strategies)
+- [07. Database Safety Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/07-database-safety)
+- [08. Operations & Ticketing Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/08-ops-and-ticketing)
+- [09. Browser Automation Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/09-browser-automation)
+- [10. Context Management Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/10-context-management)
+- [11. Skill Creator Guide](https://github.com/thotzl/univerasl-agent-setup/wiki/11-skill-creator)
