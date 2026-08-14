@@ -138,6 +138,16 @@ async function main() {
       name: "11-core-skill-creator.md",
       desc: "Agnostic guidelines to create modular agent skills",
     },
+    {
+      id: "12",
+      name: "12-core-redux-investigator.md",
+      desc: "Live Redux state analysis and browser action dispatching",
+    },
+    {
+      id: "13",
+      name: "13-core-project-workflows.md",
+      desc: "Workspace context, REPO_MAP sync, and Phase-gates limits",
+    },
   ];
 
   if (cliOptions.headless) {

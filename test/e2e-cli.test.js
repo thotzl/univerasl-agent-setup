@@ -181,7 +181,7 @@ async function runE2ETests() {
     await fs.mkdir(TEST_DIR, { recursive: true });
 
     await runCliHeadless(TEST_DIR, "overwrite", "all");
-    await verifyInstallation(TEST_DIR, 11); // Expecting 11 skill files
+    await verifyInstallation(TEST_DIR, 13); // Expecting 13 skill files
     console.log("✓ Scenario 1: PASSED\n");
 
     // -------------------------------------------------------------
@@ -250,7 +250,7 @@ async function runE2ETests() {
 
     // Inputs: target_dir, overwrite/merge (1=safe merge), skills ("all"), confirm ("y")
     await runCliInteractive(TEST_DIR, "1", "all", "y");
-    await verifyInstallation(TEST_DIR, 11, true); // Verified all 11 compiled skills
+    await verifyInstallation(TEST_DIR, 13, true); // Verified all 13 compiled skills
 
     const agentsMdInteractive = await fs.readFile(
       path.join(TEST_DIR, "AGENTS.md"),

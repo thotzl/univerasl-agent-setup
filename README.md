@@ -60,3 +60,5 @@ Click any link below to jump directly to its beautifully rendered, official docu
 - [09. Browser Automation Guide](https://github.com/thotzl/universal-agent-setup/wiki/09-core-browser-automation)
 - [10. Context Management Guide](https://github.com/thotzl/universal-agent-setup/wiki/10-core-context-management)
 - [11. Skill Creator Guide](https://github.com/thotzl/universal-agent-setup/wiki/11-core-skill-creator)
+- [12. Redux Investigator Guide](https://github.com/thotzl/universal-agent-setup/wiki/12-core-redux-investigator)
+- [13. Project & AI Workflows Guide](https://github.com/thotzl/universal-agent-setup/wiki/13-core-project-workflows)
