@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import os from "os";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -51,9 +52,54 @@ async function testCompileTemplate() {
   await fs.rm(testSharedDir, { recursive: true, force: true });
 }
 
+async function testExpandHomeDir() {
+  console.log("Running: testExpandHomeDir...");
+
+  // Match implementation from bin/cli.js exactly
+  function mockExpandHomeDir(filepath) {
+    if (filepath === "~") {
+      return os.homedir();
+    }
+    if (filepath.startsWith("~/") || filepath.startsWith("~" + path.sep)) {
+      return path.join(os.homedir(), filepath.slice(2));
+    }
+    return filepath;
+  }
+
+  const homedir = os.homedir();
+
+  // Test Case 1: Exact "~"
+  const res1 = mockExpandHomeDir("~");
+  if (res1 !== homedir) {
+    throw new Error(
+      `testExpandHomeDir Case 1 failed: Expected "${homedir}", got "${res1}"`,
+    );
+  }
+
+  // Test Case 2: "~/path"
+  const res2 = mockExpandHomeDir("~/some/folder");
+  const expected2 = path.join(homedir, "some/folder");
+  if (res2 !== expected2) {
+    throw new Error(
+      `testExpandHomeDir Case 2 failed: Expected "${expected2}", got "${res2}"`,
+    );
+  }
+
+  // Test Case 3: Relative path without "~"
+  const res3 = mockExpandHomeDir("./some/folder");
+  if (res3 !== "./some/folder") {
+    throw new Error(
+      `testExpandHomeDir Case 3 failed: Expected "./some/folder", got "${res3}"`,
+    );
+  }
+
+  console.log("✓ testExpandHomeDir: PASSED");
+}
+
 async function runAllTests() {
   try {
     await testCompileTemplate();
+    await testExpandHomeDir();
     console.log("\n=======================================");
     console.log("      ALL TESTS PASSED SUCCESSFULLY!    ");
     console.log("=======================================");

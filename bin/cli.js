@@ -2,11 +2,23 @@
 
 import fs from "fs/promises";
 import path from "path";
+import os from "os";
 import readline from "readline/promises";
 import { stdin as input, stdout as output } from "process";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const REPO_ROOT = path.resolve(__dirname, "..");
+
+// Helper to expand user home directory shortcut (~)
+function expandHomeDir(filepath) {
+  if (filepath === "~") {
+    return os.homedir();
+  }
+  if (filepath.startsWith("~/") || filepath.startsWith("~" + path.sep)) {
+    return path.join(os.homedir(), filepath.slice(2));
+  }
+  return filepath;
+}
 
 // Helper to ask questions in terminal
 async function askQuestion(rl, question, defaultValue) {
@@ -156,7 +168,7 @@ async function main() {
 
     // 1. Resolve target
     const targetInput = cliOptions.target || ".";
-    targetDir = path.resolve(originalCwd, targetInput);
+    targetDir = path.resolve(originalCwd, expandHomeDir(targetInput));
 
     // 2. Resolve mode
     const modeInput = cliOptions.mode || "safe";
@@ -192,7 +204,7 @@ async function main() {
         "Enter target installation directory",
         ".",
       );
-      targetDir = path.resolve(originalCwd, targetInput);
+      targetDir = path.resolve(originalCwd, expandHomeDir(targetInput));
 
       // 2. Ask Integration Mode
       console.log("\nSelect Installation Mode:");
