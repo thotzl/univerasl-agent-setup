@@ -38,7 +38,8 @@ universal-agent-setup/
 │       ├── 07-database-safety.md
 │       ├── 08-ops-and-ticketing.md
 │       ├── 09-browser-automation.md
-│       └── 10-context-management.md
+│       ├── 10-context-management.md
+│       └── 11-skill-creator.md
 └── .agents/
     └── skills/
         └── setup-maintainer.md # Self-maintaining rules for this repository

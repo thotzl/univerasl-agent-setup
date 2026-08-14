@@ -1,0 +1,164 @@
+import fs from 'fs/promises';
+import path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
+
+const TEST_DIR = path.resolve('/home/torsten/test-agents-setup');
+const REPO_ROOT = '/home/torsten/projects/universal-agent-setup';
+const CLI_PATH = path.join(REPO_ROOT, 'bin/cli.js');
+
+async function runCliHeadless(target, mode, skills) {
+  const cmd = `node ${CLI_PATH} --target ${target} --mode ${mode} --skills "${skills}" --yes`;
+  const { stdout, stderr } = await execPromise(cmd);
+  return { output: stdout, errorOutput: stderr };
+}
+
+async function verifyInstallation(target, expectedSkillsCount, isMerged = false, expectedSkillsList = []) {
+  const agentsDir = path.join(target, '.agents');
+  const skillsDir = path.join(agentsDir, 'skills');
+  const artifactsDir = path.join(agentsDir, 'artifacts');
+  const stateDir = path.join(agentsDir, 'state');
+  const scriptsDir = path.join(agentsDir, 'scripts');
+  
+  // 1. Verify directory existence
+  await fs.access(agentsDir);
+  await fs.access(skillsDir);
+  await fs.access(artifactsDir);
+  await fs.access(stateDir);
+  
+  // 2. Verify keep files
+  await fs.access(path.join(artifactsDir, '.keep'));
+  await fs.access(path.join(stateDir, '.keep'));
+  
+  // 3. Verify .aiignore
+  const aiignore = await fs.readFile(path.join(target, '.aiignore'), 'utf-8');
+  if (!aiignore.includes('!.agents/')) {
+    throw new Error('.aiignore is missing crucial un-ignore rules!');
+  }
+  
+  // 4. Verify AGENTS.md
+  const agentsMd = await fs.readFile(path.join(target, 'AGENTS.md'), 'utf-8');
+  if (isMerged) {
+    if (!agentsMd.includes('# --- UNIVERSAL AGENT DIRECTIVES ---')) {
+      throw new Error('AGENTS.md is missing the integrated merge header!');
+    }
+  } else {
+    if (!agentsMd.includes('# Global AI Agent Directives')) {
+      throw new Error('AGENTS.md has missing core content!');
+    }
+  }
+  
+  // 5. Verify Compiled Skills Count & Include Resolution
+  const installedSkills = await fs.readdir(skillsDir);
+  console.log(`   Found ${installedSkills.length} installed skills in .agents/skills/`);
+  
+  if (expectedSkillsCount !== undefined && installedSkills.length !== expectedSkillsCount) {
+    throw new Error(`Expected ${expectedSkillsCount} skill files, but found ${installedSkills.length}`);
+  }
+  
+  if (expectedSkillsList.length > 0) {
+    for (const f of expectedSkillsList) {
+      if (!installedSkills.includes(f)) {
+        throw new Error(`Expected skill ${f} was not installed!`);
+      }
+    }
+  }
+  
+  // Verify that all includes were compiled and resolved (NO '{{ INCLUDE }}' should remain)
+  for (const skillFile of installedSkills) {
+    const fileContent = await fs.readFile(path.join(skillsDir, skillFile), 'utf-8');
+    if (fileContent.includes('{{ INCLUDE')) {
+      throw new Error(`Compilation Failure: Unresolved include tag found in ${skillFile}!`);
+    }
+  }
+  
+  // 6. Verify scripts copy and execution permission
+  const srcScriptsDir = path.join(REPO_ROOT, 'template/scripts');
+  let expectedScripts = [];
+  try {
+    expectedScripts = await fs.readdir(srcScriptsDir);
+  } catch {}
+  
+  if (expectedScripts.length > 0) {
+    await fs.access(scriptsDir);
+    const installedScripts = await fs.readdir(scriptsDir);
+    if (installedScripts.length !== expectedScripts.length) {
+      throw new Error(`Expected ${expectedScripts.length} utility scripts, but found ${installedScripts.length}`);
+    }
+    // Verify execution bits by testing stat
+    for (const s of installedScripts) {
+      const stats = await fs.stat(path.join(scriptsDir, s));
+      const isExecutable = (stats.mode & 0o111) !== 0;
+      if (!isExecutable) {
+        throw new Error(`Script ${s} is not executable!`);
+      }
+    }
+  }
+}
+
+async function runE2ETests() {
+  console.log('=============================================');
+  console.log('   Starting Installer E2E Verification        ');
+  console.log('=============================================\n');
+  
+  try {
+    // -------------------------------------------------------------
+    // Test Scenario 1: Clean installation of ALL modules (Overwrite)
+    // -------------------------------------------------------------
+    console.log('Scenario 1: Clean Installation (All Modules, Overwrite)...');
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
+    await fs.mkdir(TEST_DIR, { recursive: true });
+    
+    await runCliHeadless(TEST_DIR, 'overwrite', 'all');
+    await verifyInstallation(TEST_DIR, 11); // Expecting 11 skill files
+    console.log('✓ Scenario 1: PASSED\n');
+    
+    // -------------------------------------------------------------
+    // Test Scenario 2: Granular selective install
+    // -------------------------------------------------------------
+    console.log('Scenario 2: Granular Selective Installation (Modules 1, 2, 5)...');
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
+    await fs.mkdir(TEST_DIR, { recursive: true });
+    
+    await runCliHeadless(TEST_DIR, 'overwrite', '1,2,5');
+    await verifyInstallation(TEST_DIR, 3, false, ['01-behavioral-baseline.md', '02-analytical-shortcuts.md', '04-code-craft.md']);
+    console.log('✓ Scenario 2: PASSED\n');
+    
+    // -------------------------------------------------------------
+    // Test Scenario 3: Safe Merge with existing AGENTS.md
+    // -------------------------------------------------------------
+    console.log('Scenario 3: Safe Merge with existing custom AGENTS.md...');
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
+    await fs.mkdir(TEST_DIR, { recursive: true });
+    
+    // Pre-create a custom local AGENTS.md
+    const originalContent = '# My Custom Project Instructions\n- Do things my way\n';
+    await fs.writeFile(path.join(TEST_DIR, 'AGENTS.md'), originalContent);
+    
+    await runCliHeadless(TEST_DIR, 'safe', '1,2');
+    await verifyInstallation(TEST_DIR, 2, true, ['01-behavioral-baseline.md', '02-analytical-shortcuts.md']);
+    
+    // Verify custom original content was preserved
+    const agentsMdMerged = await fs.readFile(path.join(TEST_DIR, 'AGENTS.md'), 'utf-8');
+    if (!agentsMdMerged.startsWith('# My Custom Project Instructions')) {
+      throw new Error('Safe Merge failed: Original AGENTS.md content was overwritten!');
+    }
+    console.log('✓ Scenario 3: PASSED\n');
+    
+    console.log('=============================================');
+    console.log('    ALL CLI E2E TEST SCENARIOS PASSED!        ');
+    console.log('=============================================');
+    
+  } catch (err) {
+    console.error('\n✗ E2E TEST SCENARIO FAILED:');
+    console.error(err);
+    process.exit(1);
+  } finally {
+    // Clean up test sandbox
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
+  }
+}
+
+runE2ETests();

@@ -35,66 +35,138 @@ async function compileTemplate(filePath, sharedDir) {
   return content;
 }
 
-async function main() {
-  const rl = readline.createInterface({ input, output });
+// Parse Command Line Arguments
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const options = {
+    target: null,
+    mode: null,
+    skills: null,
+    yes: false,
+    headless: false
+  };
   
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--target' || arg === '-t') {
+      options.target = args[++i];
+      options.headless = true;
+    } else if (arg === '--mode' || arg === '-m') {
+      options.mode = args[++i];
+      options.headless = true;
+    } else if (arg === '--skills' || arg === '-s') {
+      options.skills = args[++i];
+      options.headless = true;
+    } else if (arg === '--yes' || arg === '-y') {
+      options.yes = true;
+      options.headless = true;
+    }
+  }
+  return options;
+}
+
+async function main() {
   console.log('\n=============================================');
   console.log('    Universal Agent Scaffolding Installer    ');
   console.log('=============================================\n');
+
+  const cliOptions = parseArgs();
   
-  try {
-    // 1. Ask Target Directory
-    const targetInput = await askQuestion(rl, 'Enter target installation directory', '.');
-    const targetDir = path.resolve(process.cwd(), targetInput);
+  let targetDir = process.cwd();
+  let overwriteMode = false;
+  let selectedFiles = [];
+  
+  const modules = [
+    { id: '1', name: '01-behavioral-baseline.md', desc: 'Core direct tone, sparring partner rules' },
+    { id: '2', name: '02-analytical-shortcuts.md', desc: 'AIC, CoT, MECE, Raw, Inquiry directives' },
+    { id: '3', name: '03-vibe-coding.md', desc: 'Schema-first, DoD, Phase-gates engineering standard' },
+    { id: '4', name: '10-context-management.md', desc: 'Extractive compression & local script sandbox' },
+    { id: '5', name: '04-code-craft.md', desc: 'Implement-Review-Simplify, KISS, Pre-flight checks' },
+    { id: '6', name: '05-technical-standards.md', desc: 'Data-logic separation (ECS), stable interfaces' },
+    { id: '7', name: '06-testing-strategies.md', desc: 'Reproduction-first, surgical mocking rules' },
+    { id: '8', name: '07-database-safety.md', desc: 'No experimental rollbacks, clean local resets' },
+    { id: '9', name: '08-ops-and-ticketing.md', desc: 'Markdown ticketing (.tickets/), atomic changelogs' },
+    { id: '10', name: '09-browser-automation.md', desc: 'WebMCP & structured state-injection (Redux/Zustand)' },
+    { id: '11', name: '11-skill-creator.md', desc: 'Agnostic guidelines to create modular agent skills' }
+  ];
+
+  if (cliOptions.headless) {
+    // ------------------ HEADLESS MODE ------------------
+    console.log('Running in Headless (Non-Interactive) Mode...\n');
     
-    // 2. Ask Integration Mode
-    console.log('\nSelect Installation Mode:');
-    console.log(' 1) Safe Merge (Append rules to existing AGENTS.md, merge skills without deleting others)');
-    console.log(' 2) Overwrite (Wipe and replace existing .agents/ and AGENTS.md)');
-    const modeChoice = await askQuestion(rl, 'Enter choice (1 or 2)', '1');
-    const overwriteMode = modeChoice === '2';
+    // 1. Resolve target
+    const targetInput = cliOptions.target || '.';
+    targetDir = path.resolve(process.cwd(), targetInput);
     
-    // 3. Define Modules
-    const modules = [
-      { id: '1', name: 'behavioral-baseline.md', desc: 'Core direct tone, sparring partner rules' },
-      { id: '2', name: 'analytical-shortcuts.md', desc: 'AIC, CoT, MECE, Raw, Inquiry directives' },
-      { id: '3', name: 'vibe-coding.md', desc: 'Schema-first, DoD, Phase-gates engineering standard' },
-      { id: '4', name: 'context-management.md', desc: 'Extractive compression & local script sandbox' },
-      { id: '5', name: 'code-craft.md', desc: 'Implement-Review-Simplify, KISS, Pre-flight checks' },
-      { id: '6', name: 'technical-standards.md', desc: 'Data-logic separation (ECS), stable interfaces' },
-      { id: '7', name: 'testing-strategies.md', desc: 'Reproduction-first, surgical mocking rules' },
-      { id: '8', name: 'database-safety.md', desc: 'No experimental rollbacks, clean local resets' },
-      { id: '9', name: 'ops-and-ticketing.md', desc: 'Markdown ticketing (.tickets/), atomic changelogs' },
-      { id: '10', name: 'browser-automation.md', desc: 'WebMCP & structured state-injection (Redux/Zustand)' }
-    ];
+    // 2. Resolve mode
+    const modeInput = cliOptions.mode || 'safe';
+    overwriteMode = modeInput.toLowerCase() === 'overwrite';
     
-    console.log('\nAvailable Skill Modules:');
-    modules.forEach(m => {
-      console.log(`  ${m.id}) ${m.name.padEnd(28)} - ${m.desc}`);
-    });
-    
-    const selectChoice = await askQuestion(rl, 'Enter IDs to install (comma-separated, e.g. 1,2,3,5) or "all"', 'all');
-    let selectedFiles = [];
-    if (selectChoice.toLowerCase() === 'all') {
+    // 3. Resolve skills
+    const skillsInput = cliOptions.skills || 'all';
+    if (skillsInput.toLowerCase() === 'all') {
       selectedFiles = modules.map(m => m.name);
     } else {
-      const selectedIds = selectChoice.split(',').map(s => s.trim());
-      selectedFiles = modules.filter(m => selectedIds.includes(m.id)).map(m => m.name);
+      const selectedIds = skillsInput.split(',').map(s => s.trim());
+      selectedFiles = modules.filter(m => selectedIds.includes(m.id) || selectedIds.includes(m.name)).map(m => m.name);
     }
     
-    // 4. Confirm install
-    console.log(`\nTarget Location : ${targetDir}`);
-    console.log(`Mode            : ${overwriteMode ? 'OVERWRITE' : 'SAFE INTEGRATE'}`);
-    console.log(`Skills to Copy  : ${selectedFiles.length} files`);
+    if (!cliOptions.yes) {
+      console.error('Error: Headless mode requires the --yes or -y flag to confirm execution.');
+      process.exit(1);
+    }
+  } else {
+    // ------------------ INTERACTIVE MODE ------------------
+    const rl = readline.createInterface({ input, output });
     
-    const confirm = await askQuestion(rl, 'Proceed with installation? (y/n)', 'y');
-    if (confirm.toLowerCase() !== 'y') {
-      console.log('Installation cancelled.');
+    try {
+      // 1. Ask Target Directory
+      const targetInput = await askQuestion(rl, 'Enter target installation directory', '.');
+      targetDir = path.resolve(process.cwd(), targetInput);
+      
+      // 2. Ask Integration Mode
+      console.log('\nSelect Installation Mode:');
+      console.log(' 1) Safe Merge (Append rules to existing AGENTS.md, merge skills without deleting others)');
+      console.log(' 2) Overwrite (Wipe and replace existing .agents/ and AGENTS.md)');
+      const modeChoice = await askQuestion(rl, 'Enter choice (1 or 2)', '1');
+      overwriteMode = modeChoice === '2';
+      
+      // 3. Display Modules
+      console.log('\nAvailable Skill Modules:');
+      modules.forEach(m => {
+        console.log(`  ${m.id}) ${m.name.padEnd(28)} - ${m.desc}`);
+      });
+      
+      const selectChoice = await askQuestion(rl, 'Enter IDs to install (comma-separated, e.g. 1,2,3,5) or "all"', 'all');
+      if (selectChoice.toLowerCase() === 'all') {
+        selectedFiles = modules.map(m => m.name);
+      } else {
+        const selectedIds = selectChoice.split(',').map(s => s.trim());
+        selectedFiles = modules.filter(m => selectedIds.includes(m.id)).map(m => m.name);
+      }
+      
+      // 4. Confirm install
+      console.log(`\nTarget Location : ${targetDir}`);
+      console.log(`Mode            : ${overwriteMode ? 'OVERWRITE' : 'SAFE INTEGRATE'}`);
+      console.log(`Skills to Copy  : ${selectedFiles.length} files`);
+      
+      const confirm = await askQuestion(rl, 'Proceed with installation? (y/n)', 'y');
+      if (confirm.toLowerCase() !== 'y') {
+        console.log('Installation cancelled.');
+        rl.close();
+        return;
+      }
+    } catch (err) {
+      console.error(`✗ Prompt error: ${err.message}`);
       rl.close();
-      return;
+      process.exit(1);
+    } finally {
+      rl.close();
     }
-    
-    // 5. Run Execution
+  }
+  
+  // ------------------ EXECUTION ENGINE ------------------
+  try {
     const templateRoot = path.join(REPO_ROOT, 'template', 'root');
     const templateSkills = path.join(REPO_ROOT, 'template', 'skills');
     const templateShared = path.join(REPO_ROOT, 'template', 'shared');
@@ -194,8 +266,7 @@ async function main() {
     
   } catch (err) {
     console.error(`✗ Installation failed: ${err.message}`);
-  } finally {
-    rl.close();
+    process.exit(1);
   }
 }
 
