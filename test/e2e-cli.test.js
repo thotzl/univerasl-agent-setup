@@ -1,12 +1,14 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
 const execPromise = promisify(exec);
 
-const TEST_DIR = path.resolve('/home/torsten/test-agents-setup');
-const REPO_ROOT = '/home/torsten/projects/universal-agent-setup';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(__dirname, '..');
+const TEST_DIR = path.resolve(REPO_ROOT, '../test-agents-setup');
 const CLI_PATH = path.join(REPO_ROOT, 'bin/cli.js');
 
 async function runCliHeadless(target, mode, skills) {
