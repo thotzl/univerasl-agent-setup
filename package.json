@@ -15,7 +15,7 @@
   "devDependencies": {
     "prettier": "^3.0.0"
   },
-  "homepage": "https://github.com/thotzl/univerasl-agent-setup/wiki",
+  "homepage": "https://github.com/thotzl/universal-agent-setup/wiki",
   "keywords": [
     "agents",
     "scaffolding",
