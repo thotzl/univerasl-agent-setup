@@ -5,6 +5,7 @@ import path from "path";
 import os from "os";
 import readline from "readline/promises";
 import { stdin as input, stdout as output } from "process";
+import { program } from "commander";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const REPO_ROOT = path.resolve(__dirname, "..");
@@ -52,280 +53,256 @@ async function compileTemplate(filePath, sharedDir) {
   return content;
 }
 
-// Parse Command Line Arguments
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const options = {
-    target: null,
-    mode: null,
-    skills: null,
-    yes: false,
-    headless: false,
-    uninstall: false,
-  };
+// Dynamic Module Loader on top of skills.json manifest
+async function loadModules() {
+  const manifestPath = path.join(
+    REPO_ROOT,
+    "template",
+    "skills",
+    "skills.json",
+  );
+  const manifestContent = await fs.readFile(manifestPath, "utf-8");
+  const { skills } = JSON.parse(manifestContent);
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === "--target" || arg === "-t") {
-      options.target = args[++i];
-      options.headless = true;
-    } else if (arg === "--mode" || arg === "-m") {
-      options.mode = args[++i];
-      options.headless = true;
-    } else if (arg === "--skills" || arg === "-s") {
-      options.skills = args[++i];
-      options.headless = true;
-    } else if (arg === "--yes" || arg === "-y") {
-      options.yes = true;
-      options.headless = true;
-    } else if (arg === "--uninstall" || arg === "-u") {
-      options.uninstall = true;
-      options.headless = true;
-    }
-  }
-  return options;
+  return skills.map((s, index) => ({
+    id: String(index + 1), // "1", "2", "3" etc. for interactive indexing backward compatibility
+    key: s.id, // e.g. "core-behavioral-baseline"
+    name: s.file, // e.g. "01-core-behavioral-baseline.md"
+    desc: s.description,
+    required: s.required,
+    version: s.version,
+    tags: s.tags,
+  }));
 }
 
-async function main() {
+// Helper to compile and install a single skill
+async function installSingleSkill(
+  moduleItem,
+  targetDir,
+  overwriteMode,
+  modules,
+) {
+  const templateSkills = path.join(REPO_ROOT, "template", "skills");
+  const templateShared = path.join(REPO_ROOT, "template", "shared");
+  const destAgents = path.join(targetDir, ".agents");
+
+  const isGlobalInstall = path.basename(targetDir).startsWith(".");
+  const destSkills = isGlobalInstall
+    ? path.join(targetDir, "skills")
+    : path.join(destAgents, "skills");
+
+  await fs.mkdir(destSkills, { recursive: true });
+
+  const file = moduleItem.name;
+  const srcFile = path.join(templateSkills, file);
+  const skillDirName = moduleItem.key;
+  const skillTargetDir = path.join(destSkills, skillDirName);
+  const destFile = path.join(skillTargetDir, "SKILL.md");
+
+  // Explicitly wipe the old skill directory to guarantee a clean, non-polluted replacement and prevent orphaned files
+  await fs.rm(skillTargetDir, { recursive: true, force: true });
+  await fs.mkdir(skillTargetDir, { recursive: true });
+
+  // Compile and write SKILL.md
+  const compiled = await compileTemplate(srcFile, templateShared);
+  await fs.writeFile(destFile, compiled);
+  console.log(`✓ Compiled and wrote skill: ${skillDirName}/SKILL.md`);
+
+  // Check if there are associated assets/scripts inside the template folder
+  const srcAssetDir = path.join(templateSkills, skillDirName);
+  let srcAssetDirExists = false;
+  try {
+    await fs.access(srcAssetDir);
+    srcAssetDirExists = true;
+  } catch {}
+
+  if (srcAssetDirExists) {
+    await fs.cp(srcAssetDir, skillTargetDir, { recursive: true });
+    console.log(`   ↳ Copied associated assets/scripts for ${skillDirName}`);
+  }
+}
+
+// Complete Uninstaller Logic
+async function runUninstaller(targetDir, skipPrompt) {
+  // Resolve redirection block and list of rule files
+  const agentRuleFiles = [
+    ".cursorrules",
+    ".windsurfrules",
+    ".clinerules",
+    ".copilotrules",
+    ".github/copilot-instructions.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+    ".gemini",
+    ".geminirules",
+  ];
+
+  const redirectComment = `\n\n# ==============================================================================\n#                 Universal AI Agent & Copilot Redirection\n# ==============================================================================\n# This workspace utilizes a unified cognitive rule-structure. To prevent context \n# drift, hallucinations, or anti-hallucination rule violations, ALL AI agents \n# (Cursor, Copilot, Windsurf, Gemini, Cline, Roo Code, etc.) working inside this\n# codebase MUST read, internalize, and strictly prioritize:\n# \n# 1. The master root mandates in: AGENTS.md\n# 2. The compiled, flattened specialized skills in: .agents/skills/\n# ==============================================================================\n`;
+
+  if (!skipPrompt) {
+    const rl = readline.createInterface({ input, output });
+    try {
+      const confirm = await askQuestion(
+        rl,
+        `This will delete .agents/, AGENTS.md, .aiignore and strip redirection from rule files in:\n  ${targetDir}\nProceed with uninstallation? (y/n)`,
+        "n",
+      );
+      if (confirm.toLowerCase() !== "y") {
+        console.log("Uninstallation cancelled.");
+        rl.close();
+        return;
+      }
+    } catch (err) {
+      console.error(`✗ Prompt error: ${err.message}`);
+      rl.close();
+      process.exit(1);
+    } finally {
+      rl.close();
+    }
+  }
+
+  try {
+    // 1. Remove .agents/
+    const destAgents = path.join(targetDir, ".agents");
+    try {
+      await fs.rm(destAgents, { recursive: true, force: true });
+      console.log("✓ Removed .agents/ directory");
+    } catch (err) {
+      console.warn(`⚠ Could not remove .agents/ directory: ${err.message}`);
+    }
+
+    // 2. Remove AGENTS.md
+    const destAgentsMd = path.join(targetDir, "AGENTS.md");
+    try {
+      await fs.rm(destAgentsMd, { force: true });
+      console.log("✓ Removed AGENTS.md");
+    } catch (err) {
+      console.warn(`⚠ Could not remove AGENTS.md: ${err.message}`);
+    }
+
+    // 3. Remove .aiignore
+    const destAiignore = path.join(targetDir, ".aiignore");
+    try {
+      await fs.rm(destAiignore, { force: true });
+      console.log("✓ Removed .aiignore");
+    } catch (err) {
+      console.warn(`⚠ Could not remove .aiignore: ${err.message}`);
+    }
+
+    // 4. Strip redirection from rule files
+    for (const ruleFile of agentRuleFiles) {
+      const destRulePath = path.join(targetDir, ruleFile);
+      let ruleFileExists = false;
+      try {
+        await fs.access(destRulePath);
+        ruleFileExists = true;
+      } catch {}
+
+      if (!ruleFileExists) continue;
+
+      try {
+        let ruleContent = await fs.readFile(destRulePath, "utf-8");
+        if (ruleContent.includes(redirectComment)) {
+          ruleContent = ruleContent.replace(redirectComment, "");
+        } else {
+          // Regex fallback
+          const redirectRegex =
+            /\r?\n\r?\n# =+[\s\S]*?Universal AI Agent & Copilot Redirection[\s\S]*?# =+\r?\n?/g;
+          ruleContent = ruleContent.replace(redirectRegex, "");
+        }
+
+        ruleContent = ruleContent.trim();
+        if (ruleContent === "") {
+          await fs.rm(destRulePath, { force: true });
+          // Clean up empty directories if left behind (like .github/)
+          if (ruleFile.includes("/")) {
+            const parentDir = path.dirname(destRulePath);
+            try {
+              const remainingFiles = await fs.readdir(parentDir);
+              if (remainingFiles.length === 0) {
+                await fs.rmdir(parentDir);
+                console.log(
+                  `✓ Removed empty parent directory: ${path.basename(parentDir)}`,
+                );
+              }
+            } catch {}
+          }
+          console.log(`✓ Removed empty rule file: ${ruleFile}`);
+        } else {
+          await fs.writeFile(destRulePath, ruleContent + "\n");
+          console.log(`✓ Stripped redirection from: ${ruleFile}`);
+        }
+      } catch (err) {
+        console.warn(
+          `⚠ Could not process ${ruleFile} during uninstall: ${err.message}`,
+        );
+      }
+    }
+
+    console.log("\n=============================================");
+    console.log("   Uninstallation completed successfully!    ");
+    console.log("=============================================\n");
+  } catch (err) {
+    console.error(`✗ Uninstallation failed: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+// Main Interactive/Headless Installer Action
+async function runInstaller(options, modules) {
   console.log("\n=============================================");
   console.log("    Universal Agent Scaffolding Installer    ");
   console.log("=============================================\n");
 
-  const cliOptions = parseArgs();
-
   const originalCwd = process.env.INIT_CWD || process.cwd();
   let targetDir = originalCwd;
 
-  if (cliOptions.uninstall) {
-    console.log("=============================================");
-    console.log("          Uninstalling Agent Setup           ");
-    console.log("=============================================\n");
-
-    const targetInput = cliOptions.target || ".";
+  if (options.uninstall) {
+    const targetInput = options.target || ".";
     targetDir = path.resolve(originalCwd, expandHomeDir(targetInput));
-
-    // Resolve redirection block and list of rule files
-    const agentRuleFiles = [
-      ".cursorrules",
-      ".windsurfrules",
-      ".clinerules",
-      ".copilotrules",
-      ".github/copilot-instructions.md",
-      "CLAUDE.md",
-      "GEMINI.md",
-      ".gemini",
-      ".geminirules",
-    ];
-
-    const redirectComment = `\n\n# ==============================================================================\n#                 Universal AI Agent & Copilot Redirection\n# ==============================================================================\n# This workspace utilizes a unified cognitive rule-structure. To prevent context \n# drift, hallucinations, or anti-hallucination rule violations, ALL AI agents \n# (Cursor, Copilot, Windsurf, Gemini, Cline, Roo Code, etc.) working inside this\n# codebase MUST read, internalize, and strictly prioritize:\n# \n# 1. The master root mandates in: AGENTS.md\n# 2. The compiled, flattened specialized skills in: .agents/skills/\n# ==============================================================================\n`;
-
-    if (!cliOptions.yes) {
-      const rl = readline.createInterface({ input, output });
-      try {
-        const confirm = await askQuestion(
-          rl,
-          `This will delete .agents/, AGENTS.md, .aiignore and strip redirection from rule files in:\n  ${targetDir}\nProceed with uninstallation? (y/n)`,
-          "n",
-        );
-        if (confirm.toLowerCase() !== "y") {
-          console.log("Uninstallation cancelled.");
-          rl.close();
-          return;
-        }
-      } catch (err) {
-        console.error(`✗ Prompt error: ${err.message}`);
-        rl.close();
-        process.exit(1);
-      } finally {
-        rl.close();
-      }
-    }
-
-    try {
-      // 1. Remove .agents/
-      const destAgents = path.join(targetDir, ".agents");
-      try {
-        await fs.rm(destAgents, { recursive: true, force: true });
-        console.log("✓ Removed .agents/ directory");
-      } catch (err) {
-        console.warn(`⚠ Could not remove .agents/ directory: ${err.message}`);
-      }
-
-      // 2. Remove AGENTS.md
-      const destAgentsMd = path.join(targetDir, "AGENTS.md");
-      try {
-        await fs.rm(destAgentsMd, { force: true });
-        console.log("✓ Removed AGENTS.md");
-      } catch (err) {
-        console.warn(`⚠ Could not remove AGENTS.md: ${err.message}`);
-      }
-
-      // 3. Remove .aiignore
-      const destAiignore = path.join(targetDir, ".aiignore");
-      try {
-        await fs.rm(destAiignore, { force: true });
-        console.log("✓ Removed .aiignore");
-      } catch (err) {
-        console.warn(`⚠ Could not remove .aiignore: ${err.message}`);
-      }
-
-      // 4. Strip redirection from rule files
-      for (const ruleFile of agentRuleFiles) {
-        const destRulePath = path.join(targetDir, ruleFile);
-        let ruleFileExists = false;
-        try {
-          await fs.access(destRulePath);
-          ruleFileExists = true;
-        } catch {}
-
-        if (!ruleFileExists) continue;
-
-        try {
-          let ruleContent = await fs.readFile(destRulePath, "utf-8");
-          if (ruleContent.includes(redirectComment)) {
-            ruleContent = ruleContent.replace(redirectComment, "");
-          } else {
-            // Regex fallback
-            const redirectRegex =
-              /\r?\n\r?\n# =+[\s\S]*?Universal AI Agent & Copilot Redirection[\s\S]*?# =+\r?\n?/g;
-            ruleContent = ruleContent.replace(redirectRegex, "");
-          }
-
-          ruleContent = ruleContent.trim();
-          if (ruleContent === "") {
-            await fs.rm(destRulePath, { force: true });
-            // Clean up empty directories if left behind (like .github/)
-            if (ruleFile.includes("/")) {
-              const parentDir = path.dirname(destRulePath);
-              try {
-                const remainingFiles = await fs.readdir(parentDir);
-                if (remainingFiles.length === 0) {
-                  await fs.rmdir(parentDir);
-                  console.log(
-                    `✓ Removed empty parent directory: ${path.basename(parentDir)}`,
-                  );
-                }
-              } catch {}
-            }
-            console.log(`✓ Removed empty rule file: ${ruleFile}`);
-          } else {
-            await fs.writeFile(destRulePath, ruleContent + "\n");
-            console.log(`✓ Stripped redirection from: ${ruleFile}`);
-          }
-        } catch (err) {
-          console.warn(
-            `⚠ Could not process ${ruleFile} during uninstall: ${err.message}`,
-          );
-        }
-      }
-
-      console.log("\n=============================================");
-      console.log("   Uninstallation completed successfully!    ");
-      console.log("=============================================\n");
-    } catch (err) {
-      console.error(`✗ Uninstallation failed: ${err.message}`);
-      process.exit(1);
-    }
+    await runUninstaller(targetDir, options.yes);
     return;
   }
 
   let overwriteMode = false;
   let selectedFiles = [];
 
-  const modules = [
-    {
-      id: "1",
-      name: "01-core-behavioral-baseline.md",
-      desc: "Core direct tone, sparring partner rules",
-    },
-    {
-      id: "2",
-      name: "02-core-analytical-shortcuts.md",
-      desc: "AIC, CoT, MECE, Raw, Inquiry directives",
-    },
-    {
-      id: "3",
-      name: "03-core-vibe-coding.md",
-      desc: "Schema-first, DoD, Phase-gates engineering standard",
-    },
-    {
-      id: "4",
-      name: "04-core-code-craft.md",
-      desc: "Implement-Review-Simplify, KISS, Pre-flight checks",
-    },
-    {
-      id: "5",
-      name: "05-core-technical-standards.md",
-      desc: "Data-logic separation (ECS), stable interfaces",
-    },
-    {
-      id: "6",
-      name: "06-core-testing-strategies.md",
-      desc: "Reproduction-first, surgical mocking rules",
-    },
-    {
-      id: "7",
-      name: "07-core-database-safety.md",
-      desc: "No experimental rollbacks, clean local resets",
-    },
-    {
-      id: "8",
-      name: "08-core-ops-and-ticketing.md",
-      desc: "Markdown ticketing (.tickets/), atomic changelogs",
-    },
-    {
-      id: "9",
-      name: "09-core-browser-automation.md",
-      desc: "WebMCP & structured state-injection (Redux/Zustand)",
-    },
-    {
-      id: "10",
-      name: "10-core-context-management.md",
-      desc: "Extractive compression & local script sandbox",
-    },
-    {
-      id: "11",
-      name: "11-core-skill-creator.md",
-      desc: "Agnostic guidelines to create modular agent skills",
-    },
-    {
-      id: "12",
-      name: "12-core-redux-investigator.md",
-      desc: "Live Redux state analysis and browser action dispatching",
-    },
-    {
-      id: "13",
-      name: "13-core-project-workflows.md",
-      desc: "Workspace context, REPO_MAP sync, and Phase-gates limits",
-    },
-  ];
+  const isHeadless = !!(
+    options.target ||
+    options.mode ||
+    options.skills ||
+    options.yes
+  );
 
-  if (cliOptions.headless) {
+  if (isHeadless) {
     // ------------------ HEADLESS MODE ------------------
     console.log("Running in Headless (Non-Interactive) Mode...\n");
 
     // 1. Resolve target
-    const targetInput = cliOptions.target || ".";
+    const targetInput = options.target || ".";
     targetDir = path.resolve(originalCwd, expandHomeDir(targetInput));
 
     // 2. Resolve mode
-    const modeInput = cliOptions.mode || "safe";
+    const modeInput = options.mode || "safe";
     overwriteMode = modeInput.toLowerCase() === "overwrite";
 
     // 3. Resolve skills
-    const skillsInput = cliOptions.skills || "all";
+    const skillsInput = options.skills || "all";
     if (skillsInput.toLowerCase() === "all") {
       selectedFiles = modules.map((m) => m.name);
     } else {
       const selectedIds = skillsInput.split(",").map((s) => s.trim());
       selectedFiles = modules
         .filter(
-          (m) => selectedIds.includes(m.id) || selectedIds.includes(m.name),
+          (m) =>
+            selectedIds.includes(m.id) ||
+            selectedIds.includes(m.name) ||
+            selectedIds.includes(m.key),
         )
         .map((m) => m.name);
     }
 
-    if (!cliOptions.yes) {
+    if (!options.yes) {
       console.error(
         "Error: Headless mode requires the --yes or -y flag to confirm execution.",
       );
@@ -358,7 +335,7 @@ async function main() {
       // 3. Display Modules
       console.log("\nAvailable Skill Modules:");
       modules.forEach((m) => {
-        console.log(`  ${m.id}) ${m.name.padEnd(28)} - ${m.desc}`);
+        console.log(`  ${m.id}) ${m.key.padEnd(28)} - ${m.desc}`);
       });
 
       const selectChoice = await askQuestion(
@@ -371,7 +348,12 @@ async function main() {
       } else {
         const selectedIds = selectChoice.split(",").map((s) => s.trim());
         selectedFiles = modules
-          .filter((m) => selectedIds.includes(m.id))
+          .filter(
+            (m) =>
+              selectedIds.includes(m.id) ||
+              selectedIds.includes(m.key) ||
+              selectedIds.includes(m.name),
+          )
           .map((m) => m.name);
       }
 
@@ -404,26 +386,14 @@ async function main() {
   // ------------------ EXECUTION ENGINE ------------------
   try {
     const templateRoot = path.join(REPO_ROOT, "template", "root");
-    const templateSkills = path.join(REPO_ROOT, "template", "skills");
-    const templateShared = path.join(REPO_ROOT, "template", "shared");
     const templateScripts = path.join(REPO_ROOT, "template", "scripts");
-
     const destAgents = path.join(targetDir, ".agents");
-
-    // Dynamically resolve skills destination: if the target is a hidden dotfolder (like .gemini, .cursor, etc.)
-    // we install directly to skills/ to align with global config standards. Otherwise, we install to .agents/skills/
-    const isGlobalInstall = path.basename(targetDir).startsWith(".");
-    const destSkills = isGlobalInstall
-      ? path.join(targetDir, "skills")
-      : path.join(destAgents, "skills");
-
     const destArtifacts = path.join(destAgents, "artifacts");
     const destState = path.join(destAgents, "state");
     const destScripts = path.join(destAgents, "scripts");
 
     // Ensure basic folders exist
     await fs.mkdir(destAgents, { recursive: true });
-    await fs.mkdir(destSkills, { recursive: true });
     await fs.mkdir(destArtifacts, { recursive: true });
     await fs.mkdir(destState, { recursive: true });
 
@@ -431,8 +401,7 @@ async function main() {
     await fs.writeFile(path.join(destArtifacts, ".keep"), "");
     await fs.writeFile(path.join(destState, ".keep"), "");
 
-    // Handle Root Files
-    // .aiignore
+    // Handle Root Files (.aiignore)
     const srcAiignore = path.join(templateRoot, ".aiignore");
     const destAiignore = path.join(targetDir, ".aiignore");
     let aiignoreContent = "";
@@ -554,44 +523,9 @@ async function main() {
 
     // Handle Skills (Compile with Includes and Copy Assets)
     for (const file of selectedFiles) {
-      const srcFile = path.join(templateSkills, file);
-
-      // Extract directory name (e.g. "01-core-behavioral-baseline.md" -> "core-behavioral-baseline")
-      const skillDirName = file.replace(/^\d+-/, "").replace(".md", "");
-      const skillTargetDir = path.join(destSkills, skillDirName);
-      const destFile = path.join(skillTargetDir, "SKILL.md");
-
-      try {
-        // Explicitly wipe the old skill directory to guarantee a clean, non-polluted replacement and prevent orphaned files
-        await fs.rm(skillTargetDir, { recursive: true, force: true });
-
-        // Create directory for the skill
-        await fs.mkdir(skillTargetDir, { recursive: true });
-
-        // Compile and write SKILL.md
-        const compiled = await compileTemplate(srcFile, templateShared);
-        await fs.writeFile(destFile, compiled);
-        console.log(`✓ Compiled and wrote skill: ${skillDirName}/SKILL.md`);
-
-        // Check if there are associated assets/scripts inside the template folder
-        const srcAssetDir = path.join(templateSkills, skillDirName);
-        let srcAssetDirExists = false;
-        try {
-          await fs.access(srcAssetDir);
-          srcAssetDirExists = true;
-        } catch {}
-
-        if (srcAssetDirExists) {
-          // Recursively copy references, scripts, assets, etc.
-          await fs.cp(srcAssetDir, skillTargetDir, { recursive: true });
-          console.log(
-            `   ↳ Copied associated assets/scripts for ${skillDirName}`,
-          );
-        }
-      } catch (err) {
-        console.error(
-          `✗ Error processing skill ${skillDirName}: ${err.message}`,
-        );
+      const moduleItem = modules.find((m) => m.name === file || m.key === file);
+      if (moduleItem) {
+        await installSingleSkill(moduleItem, targetDir, overwriteMode, modules);
       }
     }
 
@@ -621,6 +555,133 @@ async function main() {
     console.error(`✗ Installation failed: ${err.message}`);
     process.exit(1);
   }
+}
+
+// Main Orchestrator and Commander Entry Point
+async function main() {
+  let modules;
+  try {
+    modules = await loadModules();
+  } catch (err) {
+    console.error(`✗ Failed to load skills manifest: ${err.message}`);
+    process.exit(1);
+  }
+
+  program
+    .name("agent-setup")
+    .description(
+      "Deterministic, universal agent scaffolding and modular skills installer",
+    )
+    .version("1.0.0");
+
+  // Root level options for the default/init flow to maintain exact backwards compatibility
+  program
+    .option("-t, --target <directory>", "target installation directory")
+    .option("-m, --mode <mode>", "installation mode (safe | overwrite)")
+    .option(
+      "-s, --skills <skills>",
+      "comma-separated list of skill IDs or 'all'",
+    )
+    .option("-y, --yes", "skip interactive confirmation prompt")
+    .option("-u, --uninstall", "uninstall agent setup from target directory")
+    .action(async (options) => {
+      await runInstaller(options, modules);
+    });
+
+  const skillCmd = program
+    .command("skill")
+    .description("Manage skills within the project");
+
+  skillCmd
+    .command("list")
+    .description("List all available skills from the manifest")
+    .action(() => {
+      console.log("\n=============================================");
+      console.log("           Available Skill Modules           ");
+      console.log("=============================================\n");
+      modules.forEach((m) => {
+        console.log(
+          `- ID: ${m.key.padEnd(28)} (Index: ${m.id}) [v${m.version}]`,
+        );
+        console.log(`  Description: ${m.desc}`);
+        console.log(`  Tags:        ${m.tags.join(", ")}`);
+        console.log(`  Required:    ${m.required ? "Yes" : "No"}\n`);
+      });
+    });
+
+  skillCmd
+    .command("add <id>")
+    .description("Install a specific skill directly into the target project")
+    .action(async (id) => {
+      const globalOpts = program.opts();
+      const originalCwd = process.env.INIT_CWD || process.cwd();
+      const targetDir = path.resolve(
+        originalCwd,
+        expandHomeDir(globalOpts.target || "."),
+      );
+      const overwriteMode =
+        (globalOpts.mode || "safe").toLowerCase() === "overwrite";
+
+      // Match selected ID/Key or numeric Index
+      const moduleItem = modules.find((m) => m.key === id || m.id === id);
+      if (!moduleItem) {
+        console.error(`✗ Error: Skill "${id}" not found in the manifest.`);
+        process.exit(1);
+      }
+
+      console.log(`Installing skill "${moduleItem.key}" into ${targetDir}...`);
+      await installSingleSkill(moduleItem, targetDir, overwriteMode, modules);
+      console.log("✓ Done.");
+    });
+
+  skillCmd
+    .command("update")
+    .description("Re-compile and update all currently installed skills")
+    .action(async () => {
+      const globalOpts = program.opts();
+      const originalCwd = process.env.INIT_CWD || process.cwd();
+      const targetDir = path.resolve(
+        originalCwd,
+        expandHomeDir(globalOpts.target || "."),
+      );
+
+      const destAgents = path.join(targetDir, ".agents");
+      const isGlobalInstall = path.basename(targetDir).startsWith(".");
+      const destSkills = isGlobalInstall
+        ? path.join(targetDir, "skills")
+        : path.join(destAgents, "skills");
+
+      try {
+        await fs.access(destSkills);
+      } catch {
+        console.error(
+          `✗ Error: No installed skills folder found at ${destSkills}. Run init first.`,
+        );
+        process.exit(1);
+      }
+
+      console.log(`Scanning installed skills in ${destSkills}...`);
+      const installedFolders = await fs.readdir(destSkills);
+      let updatedCount = 0;
+
+      for (const folder of installedFolders) {
+        // Find matching skill by directory name (which matches the key)
+        const moduleItem = modules.find((m) => m.key === folder);
+        if (moduleItem) {
+          console.log(`Updating skill: ${folder}...`);
+          await installSingleSkill(moduleItem, targetDir, true, modules); // Always overwrite on update
+          updatedCount++;
+        }
+      }
+
+      if (updatedCount === 0) {
+        console.log("No recognized skills found to update.");
+      } else {
+        console.log(`\n✓ Successfully updated ${updatedCount} skill(s).`);
+      }
+    });
+
+  await program.parseAsync(process.argv);
 }
 
 main();

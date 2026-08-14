@@ -31,6 +31,23 @@ The installer supports absolute, relative, and shell home-directory (`~`) shortc
   npm start --prefix /var/repos/universal-agent-setup
   ```
 
+### 🛠️ Command Line Subcommands
+
+The CLI supports advanced modular subcommands in addition to the standard interactive installation wizard:
+
+- **List all available skills from the manifest:**
+  ```bash
+  node bin/cli.js skill list
+  ```
+- **Install a specific skill directly (headless):**
+  ```bash
+  node bin/cli.js skill add <id> --target <target-directory> [--mode <safe|overwrite>]
+  ```
+- **Update all currently installed skills to the newest version:**
+  ```bash
+  node bin/cli.js skill update --target <target-directory>
+  ```
+
 ---
 
 ## Workspace Script Shortcuts

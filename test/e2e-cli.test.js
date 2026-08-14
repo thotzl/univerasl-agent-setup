@@ -418,6 +418,52 @@ async function runE2ETests() {
 
     console.log("✓ Scenario 5: PASSED\n");
 
+    // -------------------------------------------------------------
+    // Test Scenario 6: Subcommands (skill list, add, update)
+    // -------------------------------------------------------------
+    console.log("Scenario 6: CLI Subcommands (list, add, update, Headless)...");
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
+    await fs.mkdir(TEST_DIR, { recursive: true });
+
+    // 1. Test skill list
+    const { stdout: listOutput } = await execPromise(
+      `node ${CLI_PATH} skill list`,
+    );
+    if (
+      !listOutput.includes("Available Skill Modules") ||
+      !listOutput.includes("core-behavioral-baseline")
+    ) {
+      throw new Error(
+        "Subcommand 'skill list' failed to list available skills!",
+      );
+    }
+    console.log("   ↳ Subcommand 'skill list': PASSED");
+
+    // 2. Test skill add <id>
+    await execPromise(
+      `node ${CLI_PATH} skill add core-behavioral-baseline --target ${TEST_DIR}`,
+    );
+    const destSkillPath = path.join(
+      TEST_DIR,
+      ".agents/skills/core-behavioral-baseline/SKILL.md",
+    );
+    await fs.access(destSkillPath);
+    console.log("   ↳ Subcommand 'skill add': PASSED");
+
+    // 3. Test skill update
+    // Let's modify the installed skill first to see if update overwrites it
+    await fs.writeFile(destSkillPath, "Obsolete Content");
+    await execPromise(`node ${CLI_PATH} skill update --target ${TEST_DIR}`);
+    const updatedContent = await fs.readFile(destSkillPath, "utf-8");
+    if (updatedContent.includes("Obsolete Content")) {
+      throw new Error(
+        "Subcommand 'skill update' failed to overwrite and update installed skill!",
+      );
+    }
+    console.log("   ↳ Subcommand 'skill update': PASSED");
+
+    console.log("✓ Scenario 6: PASSED\n");
+
     console.log("=============================================");
     console.log("    ALL CLI E2E TEST SCENARIOS PASSED!        ");
     console.log("     100% FUNCTIONAL TEST COVERAGE ATTAINED!  ");
