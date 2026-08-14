@@ -332,6 +332,7 @@ async function main() {
       ".windsurfrules",
       ".clinerules",
       ".copilotrules",
+      ".github/copilot-instructions.md",
       "CLAUDE.md",
       "GEMINI.md",
       ".gemini",
@@ -349,10 +350,15 @@ async function main() {
       } catch {}
 
       // ONLY process files that already exist to prevent polluting the workspace with unused rule files!
-      if (!ruleFileExists) continue;
+      // EXCEPTION: .github/copilot-instructions.md is created even if it doesn't exist.
+      if (!ruleFileExists && ruleFile !== ".github/copilot-instructions.md")
+        continue;
 
       try {
-        if (!overwriteMode) {
+        // Ensure parent directory exists (e.g. for .github/copilot-instructions.md)
+        await fs.mkdir(path.dirname(destRulePath), { recursive: true });
+
+        if (!overwriteMode && ruleFileExists) {
           // Safe Merge: Append redirection if not already present
           let existingRuleContent = await fs.readFile(destRulePath, "utf-8");
           if (
@@ -373,11 +379,17 @@ async function main() {
             );
           }
         } else {
-          // Overwrite mode: Replace completely with redirection pointer
+          // Overwrite mode or new file creation: Replace/write completely with redirection pointer
           await fs.writeFile(destRulePath, redirectComment);
-          console.log(
-            `✓ Overwrote existing ${ruleFile} with clean redirection pointer`,
-          );
+          if (ruleFileExists) {
+            console.log(
+              `✓ Overwrote existing ${ruleFile} with clean redirection pointer`,
+            );
+          } else {
+            console.log(
+              `✓ Created new ${ruleFile} with clean redirection pointer`,
+            );
+          }
         }
       } catch (err) {
         console.warn(

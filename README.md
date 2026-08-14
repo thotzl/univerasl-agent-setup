@@ -46,7 +46,7 @@ npm test      # Runs the comprehensive E2E and compliance test suite
 
 ## 🛠️ Troubleshooting & Manual Redirection
 
-If the installer encounters file-permission or write restrictions, it will gracefully warn you in the console. If any of the agent-typical files (`.cursorrules`, `.windsurfrules`, `.clinerules`, `.copilotrules`, `CLAUDE.md`) cannot be written automatically, simply **manually paste** the following redirection block at the top/bottom of your respective editor rule file:
+If the installer encounters file-permission or write restrictions, it will gracefully warn you in the console. If any of the agent-typical files (`.cursorrules`, `.windsurfrules`, `.clinerules`, `.copilotrules`, `.github/copilot-instructions.md`, `CLAUDE.md`) cannot be written automatically, simply **manually paste** the following redirection block at the top/bottom of your respective editor rule file:
 
 ```markdown
 # ==============================================================================

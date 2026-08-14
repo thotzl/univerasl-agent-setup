@@ -170,6 +170,7 @@ async function verifyInstallation(
     ".windsurfrules",
     ".clinerules",
     ".copilotrules",
+    ".github/copilot-instructions.md",
     "CLAUDE.md",
     "GEMINI.md",
     ".gemini",
@@ -238,7 +239,7 @@ async function runE2ETests() {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
 
-    // Pre-create a custom local AGENTS.md and an existing .cursorrules and CLAUDE.md
+    // Pre-create a custom local AGENTS.md and an existing .cursorrules and CLAUDE.md and .github/copilot-instructions.md
     const originalContent =
       "# My Custom Project Instructions\n- Do things my way\n";
     await fs.writeFile(path.join(TEST_DIR, "AGENTS.md"), originalContent);
@@ -249,6 +250,11 @@ async function runE2ETests() {
     await fs.writeFile(
       path.join(TEST_DIR, "CLAUDE.md"),
       "# Custom Claude rules\n",
+    );
+    await fs.mkdir(path.join(TEST_DIR, ".github"), { recursive: true });
+    await fs.writeFile(
+      path.join(TEST_DIR, ".github/copilot-instructions.md"),
+      "# Custom Copilot instructions\n",
     );
 
     await runCliHeadless(TEST_DIR, "safe", "1,2");
@@ -275,6 +281,16 @@ async function runE2ETests() {
     if (!clauderulesMerged.startsWith("# Custom Claude rules")) {
       throw new Error(
         "Safe Merge failed: Original CLAUDE.md content was overwritten!",
+      );
+    }
+
+    const copilotrulesMerged = await fs.readFile(
+      path.join(TEST_DIR, ".github/copilot-instructions.md"),
+      "utf-8",
+    );
+    if (!copilotrulesMerged.startsWith("# Custom Copilot instructions")) {
+      throw new Error(
+        "Safe Merge failed: Original .github/copilot-instructions.md content was overwritten!",
       );
     }
 
