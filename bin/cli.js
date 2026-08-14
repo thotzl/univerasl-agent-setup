@@ -319,6 +319,57 @@ async function main() {
       console.log("✓ Wrote AGENTS.md");
     }
 
+    // Handle Agent-Typical Rule Files Redirection
+    const agentRuleFiles = [
+      ".cursorrules",
+      ".windsurfrules",
+      ".clinerules",
+      ".copilotrules",
+    ];
+
+    const redirectComment = `\n\n# ==============================================================================\n#                 Universal AI Agent & Copilot Redirection\n# ==============================================================================\n# This workspace utilizes a unified cognitive rule-structure. To prevent context \n# drift, hallucinations, or anti-hallucination rule violations, ALL AI agents \n# (Cursor, Copilot, Windsurf, Gemini, Cline, Roo Code, etc.) working inside this\n# codebase MUST read, internalize, and strictly prioritize:\n# \n# 1. The master root mandates in: AGENTS.md\n# 2. The compiled, flattened specialized skills in: .agents/skills/\n# ==============================================================================\n`;
+
+    for (const ruleFile of agentRuleFiles) {
+      const destRulePath = path.join(targetDir, ruleFile);
+      let ruleFileExists = false;
+      try {
+        await fs.access(destRulePath);
+        ruleFileExists = true;
+      } catch {}
+
+      if (ruleFileExists) {
+        if (!overwriteMode) {
+          // Safe Merge: Append redirection if not already present
+          let existingRuleContent = await fs.readFile(destRulePath, "utf-8");
+          if (
+            !existingRuleContent.includes(
+              "Universal AI Agent & Copilot Redirection",
+            )
+          ) {
+            await fs.writeFile(
+              destRulePath,
+              existingRuleContent + redirectComment,
+            );
+            console.log(
+              `✓ Appended redirection pointer to existing ${ruleFile}`,
+            );
+          } else {
+            console.log(
+              `! ${ruleFile} already contains redirection. Skipping.`,
+            );
+          }
+        } else {
+          // Overwrite mode: Replace completely with redirection pointer
+          await fs.writeFile(destRulePath, redirectComment);
+          console.log(`✓ Overwrote ${ruleFile} with clean redirection pointer`);
+        }
+      } else {
+        // If file doesn't exist, create it in both Safe Merge and Overwrite mode
+        await fs.writeFile(destRulePath, redirectComment);
+        console.log(`✓ Created clean redirection ${ruleFile}`);
+      }
+    }
+
     // Handle Skills (Compile with Includes)
     for (const file of selectedFiles) {
       const srcFile = path.join(templateSkills, file);

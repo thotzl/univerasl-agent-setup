@@ -163,6 +163,23 @@ async function verifyInstallation(
       }
     }
   }
+
+  // 7. Verify Agent Redirection files
+  const agentRuleFiles = [
+    ".cursorrules",
+    ".windsurfrules",
+    ".clinerules",
+    ".copilotrules",
+  ];
+
+  for (const r of agentRuleFiles) {
+    const rulePath = path.join(target, r);
+    await fs.access(rulePath);
+    const ruleContent = await fs.readFile(rulePath, "utf-8");
+    if (!ruleContent.includes("Universal AI Agent & Copilot Redirection")) {
+      throw new Error(`Redirection check failed in ${r}!`);
+    }
+  }
 }
 
 async function runE2ETests() {
