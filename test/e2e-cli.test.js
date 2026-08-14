@@ -217,12 +217,12 @@ async function runE2ETests() {
     // Test Scenario 2: Granular selective install (Headless)
     // -------------------------------------------------------------
     console.log(
-      "Scenario 2: Granular Selective Installation (Modules 1, 2, 5, Headless)...",
+      "Scenario 2: Granular Selective Installation (Modules 1, 2, 4, Headless)...",
     );
     await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
 
-    await runCliHeadless(TEST_DIR, "overwrite", "1,2,5");
+    await runCliHeadless(TEST_DIR, "overwrite", "1,2,4");
     await verifyInstallation(TEST_DIR, 3, false, [
       "core-behavioral-baseline",
       "core-analytical-shortcuts",

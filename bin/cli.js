@@ -100,38 +100,38 @@ async function main() {
     },
     {
       id: "4",
-      name: "10-core-context-management.md",
-      desc: "Extractive compression & local script sandbox",
-    },
-    {
-      id: "5",
       name: "04-core-code-craft.md",
       desc: "Implement-Review-Simplify, KISS, Pre-flight checks",
     },
     {
-      id: "6",
+      id: "5",
       name: "05-core-technical-standards.md",
       desc: "Data-logic separation (ECS), stable interfaces",
     },
     {
-      id: "7",
+      id: "6",
       name: "06-core-testing-strategies.md",
       desc: "Reproduction-first, surgical mocking rules",
     },
     {
-      id: "8",
+      id: "7",
       name: "07-core-database-safety.md",
       desc: "No experimental rollbacks, clean local resets",
     },
     {
-      id: "9",
+      id: "8",
       name: "08-core-ops-and-ticketing.md",
       desc: "Markdown ticketing (.tickets/), atomic changelogs",
     },
     {
-      id: "10",
+      id: "9",
       name: "09-core-browser-automation.md",
       desc: "WebMCP & structured state-injection (Redux/Zustand)",
+    },
+    {
+      id: "10",
+      name: "10-core-context-management.md",
+      desc: "Extractive compression & local script sandbox",
     },
     {
       id: "11",
