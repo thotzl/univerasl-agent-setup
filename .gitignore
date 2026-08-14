@@ -4,3 +4,5 @@ node_modules/
 .agents/artifacts/
 .agents/state/
 test_sandbox_shared/
+test-agents-setup/
+
