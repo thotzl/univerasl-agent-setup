@@ -1,0 +1,54 @@
+services:
+  ollama:
+    # Standardmäßig auf AMD ROCm (für AMD Ryzen AI / Radeon GPUs) optimiert.
+    # Falls CPU-only gewünscht, zu ollama/ollama:latest wechseln.
+    image: ollama/ollama:rocm
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Reicht die AMD Radeon GPU (inkl. integrierter Radeon 840M/Ryzen AI) in Docker durch:
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    restart: unless-stopped
+
+    # Optional: Ressourcen-Begrenzung für kühleren/leiseren Betrieb (z.B. auf 6 CPU-Kerne)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '6'
+
+    # Alternativer NVIDIA GPU Support (falls auf Nvidia-Systemen ausgeführt):
+    # image: ollama/ollama:latest
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  ollama-pull-models:
+    image: curlimages/curl:latest
+    container_name: ollama-pull-models
+    depends_on:
+      - ollama
+    restart: "no"
+    entrypoint:
+      - "sh"
+      - "-c"
+      - |
+        echo "Warte auf Ollama..."
+        until curl -s http://ollama:11434/api/tags > /dev/null; do
+          sleep 2
+        done
+        echo "Lade qwen2.5-coder:1.5b herunter..."
+        curl -s -X POST http://ollama:11434/api/pull -d '{"name": "qwen2.5-coder:1.5b"}'
+        echo "\nLade llama3.2:3b herunter..."
+        curl -s -X POST http://ollama:11434/api/pull -d '{"name": "llama3.2:3b"}'
+        echo "\nLokale Modelle erfolgreich geladen!"
+
+volumes:
+  ollama_data:

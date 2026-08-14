@@ -114,27 +114,27 @@ async function verifyInstallation(
     installedSkills.length !== expectedSkillsCount
   ) {
     throw new Error(
-      `Expected ${expectedSkillsCount} skill files, but found ${installedSkills.length}`,
+      `Expected ${expectedSkillsCount} skill folders, but found ${installedSkills.length}`,
     );
   }
 
   if (expectedSkillsList.length > 0) {
     for (const f of expectedSkillsList) {
       if (!installedSkills.includes(f)) {
-        throw new Error(`Expected skill ${f} was not installed!`);
+        throw new Error(`Expected skill folder ${f} was not installed!`);
       }
     }
   }
 
-  // Verify that all includes were compiled and resolved (NO '{{ INCLUDE }}' should remain)
-  for (const skillFile of installedSkills) {
+  // Verify that all includes were compiled and resolved (NO '{{ INCLUDE }}' should remain in SKILL.md)
+  for (const skillFolder of installedSkills) {
     const fileContent = await fs.readFile(
-      path.join(skillsDir, skillFile),
+      path.join(skillsDir, skillFolder, "SKILL.md"),
       "utf-8",
     );
     if (fileContent.includes("{{ INCLUDE")) {
       throw new Error(
-        `Compilation Failure: Unresolved include tag found in ${skillFile}!`,
+        `Compilation Failure: Unresolved include tag found in ${skillFolder}/SKILL.md!`,
       );
     }
   }
@@ -222,9 +222,9 @@ async function runE2ETests() {
 
     await runCliHeadless(TEST_DIR, "overwrite", "1,2,5");
     await verifyInstallation(TEST_DIR, 3, false, [
-      "01-core-behavioral-baseline.md",
-      "02-core-analytical-shortcuts.md",
-      "04-core-code-craft.md",
+      "core-behavioral-baseline",
+      "core-analytical-shortcuts",
+      "core-code-craft",
     ]);
     console.log("✓ Scenario 2: PASSED\n");
 
@@ -248,8 +248,8 @@ async function runE2ETests() {
 
     await runCliHeadless(TEST_DIR, "safe", "1,2");
     await verifyInstallation(TEST_DIR, 2, true, [
-      "01-core-behavioral-baseline.md",
-      "02-core-analytical-shortcuts.md",
+      "core-behavioral-baseline",
+      "core-analytical-shortcuts",
     ]);
 
     // Verify custom original content was preserved and redirection was appended

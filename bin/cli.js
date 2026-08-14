@@ -259,7 +259,14 @@ async function main() {
     const templateScripts = path.join(REPO_ROOT, "template", "scripts");
 
     const destAgents = path.join(targetDir, ".agents");
-    const destSkills = path.join(destAgents, "skills");
+
+    // Dynamically resolve skills destination: if the target is a hidden dotfolder (like .gemini, .cursor, etc.)
+    // we install directly to skills/ to align with global config standards. Otherwise, we install to .agents/skills/
+    const isGlobalInstall = path.basename(targetDir).startsWith(".");
+    const destSkills = isGlobalInstall
+      ? path.join(targetDir, "skills")
+      : path.join(destAgents, "skills");
+
     const destArtifacts = path.join(destAgents, "artifacts");
     const destState = path.join(destAgents, "state");
     const destScripts = path.join(destAgents, "scripts");
@@ -382,17 +389,43 @@ async function main() {
       }
     }
 
-    // Handle Skills (Compile with Includes)
+    // Handle Skills (Compile with Includes and Copy Assets)
     for (const file of selectedFiles) {
       const srcFile = path.join(templateSkills, file);
-      const destFile = path.join(destSkills, file);
+
+      // Extract directory name (e.g. "01-core-behavioral-baseline.md" -> "core-behavioral-baseline")
+      const skillDirName = file.replace(/^\d+-/, "").replace(".md", "");
+      const skillTargetDir = path.join(destSkills, skillDirName);
+      const destFile = path.join(skillTargetDir, "SKILL.md");
 
       try {
+        // Create directory for the skill
+        await fs.mkdir(skillTargetDir, { recursive: true });
+
+        // Compile and write SKILL.md
         const compiled = await compileTemplate(srcFile, templateShared);
         await fs.writeFile(destFile, compiled);
-        console.log(`✓ Compiled and wrote skill: ${file}`);
+        console.log(`✓ Compiled and wrote skill: ${skillDirName}/SKILL.md`);
+
+        // Check if there are associated assets/scripts inside the template folder
+        const srcAssetDir = path.join(templateSkills, skillDirName);
+        let srcAssetDirExists = false;
+        try {
+          await fs.access(srcAssetDir);
+          srcAssetDirExists = true;
+        } catch {}
+
+        if (srcAssetDirExists) {
+          // Recursively copy references, scripts, assets, etc.
+          await fs.cp(srcAssetDir, skillTargetDir, { recursive: true });
+          console.log(
+            `   ↳ Copied associated assets/scripts for ${skillDirName}`,
+          );
+        }
       } catch (err) {
-        console.error(`✗ Error processing skill ${file}: ${err.message}`);
+        console.error(
+          `✗ Error processing skill ${skillDirName}: ${err.message}`,
+        );
       }
     }
 
