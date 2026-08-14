@@ -10,7 +10,8 @@
     "start": "node bin/cli.js",
     "format": "prettier --write .",
     "prepare": "node scripts/install-hooks.js",
-    "test": "node test/cli.test.js"
+    "test": "node test/cli.test.js",
+    "uninstall": "node bin/cli.js --uninstall"
   },
   "devDependencies": {
     "prettier": "^3.0.0"

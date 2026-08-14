@@ -335,6 +335,89 @@ async function runE2ETests() {
     }
     console.log("✓ Scenario 4: PASSED\n");
 
+    // -------------------------------------------------------------
+    // Test Scenario 5: Complete Uninstallation / Cleanup
+    // -------------------------------------------------------------
+    console.log(
+      "Scenario 5: Complete Uninstallation (All Modules, Cleanup, Headless)...",
+    );
+    await fs.rm(TEST_DIR, { recursive: true, force: true });
+    await fs.mkdir(TEST_DIR, { recursive: true });
+
+    // Pre-create rule files (one completely empty, one with custom content)
+    await fs.writeFile(path.join(TEST_DIR, ".cursorrules"), "");
+    await fs.writeFile(
+      path.join(TEST_DIR, "CLAUDE.md"),
+      "# Custom Claude Rules\nDo not delete me!\n",
+    );
+
+    // Install setup
+    await runCliHeadless(TEST_DIR, "safe", "all");
+    await verifyInstallation(TEST_DIR, 13, false);
+
+    // Run uninstall
+    const unCmd = `node ${CLI_PATH} --target ${TEST_DIR} --uninstall --yes`;
+    await execPromise(unCmd);
+
+    // Verify cleanup
+    // 1. .agents/ must be gone
+    try {
+      await fs.access(path.join(TEST_DIR, ".agents"));
+      throw new Error(".agents directory was not deleted during uninstall!");
+    } catch (err) {
+      if (err.message.includes("was not deleted")) throw err;
+    }
+
+    // 2. AGENTS.md must be gone
+    try {
+      await fs.access(path.join(TEST_DIR, "AGENTS.md"));
+      throw new Error("AGENTS.md was not deleted during uninstall!");
+    } catch (err) {
+      if (err.message.includes("was not deleted")) throw err;
+    }
+
+    // 3. .aiignore must be gone
+    try {
+      await fs.access(path.join(TEST_DIR, ".aiignore"));
+      throw new Error(".aiignore was not deleted during uninstall!");
+    } catch (err) {
+      if (err.message.includes("was not deleted")) throw err;
+    }
+
+    // 4. .cursorrules must be gone (since it was empty after stripping redirection)
+    try {
+      await fs.access(path.join(TEST_DIR, ".cursorrules"));
+      throw new Error(".cursorrules was not deleted after becoming empty!");
+    } catch (err) {
+      if (err.message.includes("was not deleted")) throw err;
+    }
+
+    // 5. .github/ must be gone (since it was empty after stripping redirection)
+    try {
+      await fs.access(path.join(TEST_DIR, ".github"));
+      throw new Error(
+        ".github directory was not deleted after becoming empty!",
+      );
+    } catch (err) {
+      if (err.message.includes("was not deleted")) throw err;
+    }
+
+    // 6. CLAUDE.md must still exist but have redirection stripped
+    const claudeContent = await fs.readFile(
+      path.join(TEST_DIR, "CLAUDE.md"),
+      "utf-8",
+    );
+    if (!claudeContent.includes("# Custom Claude Rules")) {
+      throw new Error("CLAUDE.md custom content was lost during uninstall!");
+    }
+    if (claudeContent.includes("Universal AI Agent & Copilot Redirection")) {
+      throw new Error(
+        "CLAUDE.md redirection block was not stripped during uninstall!",
+      );
+    }
+
+    console.log("✓ Scenario 5: PASSED\n");
+
     console.log("=============================================");
     console.log("    ALL CLI E2E TEST SCENARIOS PASSED!        ");
     console.log("     100% FUNCTIONAL TEST COVERAGE ATTAINED!  ");

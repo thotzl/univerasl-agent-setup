@@ -61,6 +61,7 @@ function parseArgs() {
     skills: null,
     yes: false,
     headless: false,
+    uninstall: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -77,6 +78,9 @@ function parseArgs() {
     } else if (arg === "--yes" || arg === "-y") {
       options.yes = true;
       options.headless = true;
+    } else if (arg === "--uninstall" || arg === "-u") {
+      options.uninstall = true;
+      options.headless = true;
     }
   }
   return options;
@@ -91,6 +95,140 @@ async function main() {
 
   const originalCwd = process.env.INIT_CWD || process.cwd();
   let targetDir = originalCwd;
+
+  if (cliOptions.uninstall) {
+    console.log("=============================================");
+    console.log("          Uninstalling Agent Setup           ");
+    console.log("=============================================\n");
+
+    const targetInput = cliOptions.target || ".";
+    targetDir = path.resolve(originalCwd, expandHomeDir(targetInput));
+
+    // Resolve redirection block and list of rule files
+    const agentRuleFiles = [
+      ".cursorrules",
+      ".windsurfrules",
+      ".clinerules",
+      ".copilotrules",
+      ".github/copilot-instructions.md",
+      "CLAUDE.md",
+      "GEMINI.md",
+      ".gemini",
+      ".geminirules",
+    ];
+
+    const redirectComment = `\n\n# ==============================================================================\n#                 Universal AI Agent & Copilot Redirection\n# ==============================================================================\n# This workspace utilizes a unified cognitive rule-structure. To prevent context \n# drift, hallucinations, or anti-hallucination rule violations, ALL AI agents \n# (Cursor, Copilot, Windsurf, Gemini, Cline, Roo Code, etc.) working inside this\n# codebase MUST read, internalize, and strictly prioritize:\n# \n# 1. The master root mandates in: AGENTS.md\n# 2. The compiled, flattened specialized skills in: .agents/skills/\n# ==============================================================================\n`;
+
+    if (!cliOptions.yes) {
+      const rl = readline.createInterface({ input, output });
+      try {
+        const confirm = await askQuestion(
+          rl,
+          `This will delete .agents/, AGENTS.md, .aiignore and strip redirection from rule files in:\n  ${targetDir}\nProceed with uninstallation? (y/n)`,
+          "n",
+        );
+        if (confirm.toLowerCase() !== "y") {
+          console.log("Uninstallation cancelled.");
+          rl.close();
+          return;
+        }
+      } catch (err) {
+        console.error(`✗ Prompt error: ${err.message}`);
+        rl.close();
+        process.exit(1);
+      } finally {
+        rl.close();
+      }
+    }
+
+    try {
+      // 1. Remove .agents/
+      const destAgents = path.join(targetDir, ".agents");
+      try {
+        await fs.rm(destAgents, { recursive: true, force: true });
+        console.log("✓ Removed .agents/ directory");
+      } catch (err) {
+        console.warn(`⚠ Could not remove .agents/ directory: ${err.message}`);
+      }
+
+      // 2. Remove AGENTS.md
+      const destAgentsMd = path.join(targetDir, "AGENTS.md");
+      try {
+        await fs.rm(destAgentsMd, { force: true });
+        console.log("✓ Removed AGENTS.md");
+      } catch (err) {
+        console.warn(`⚠ Could not remove AGENTS.md: ${err.message}`);
+      }
+
+      // 3. Remove .aiignore
+      const destAiignore = path.join(targetDir, ".aiignore");
+      try {
+        await fs.rm(destAiignore, { force: true });
+        console.log("✓ Removed .aiignore");
+      } catch (err) {
+        console.warn(`⚠ Could not remove .aiignore: ${err.message}`);
+      }
+
+      // 4. Strip redirection from rule files
+      for (const ruleFile of agentRuleFiles) {
+        const destRulePath = path.join(targetDir, ruleFile);
+        let ruleFileExists = false;
+        try {
+          await fs.access(destRulePath);
+          ruleFileExists = true;
+        } catch {}
+
+        if (!ruleFileExists) continue;
+
+        try {
+          let ruleContent = await fs.readFile(destRulePath, "utf-8");
+          if (ruleContent.includes(redirectComment)) {
+            ruleContent = ruleContent.replace(redirectComment, "");
+          } else {
+            // Regex fallback
+            const redirectRegex =
+              /\r?\n\r?\n# =+[\s\S]*?Universal AI Agent & Copilot Redirection[\s\S]*?# =+\r?\n?/g;
+            ruleContent = ruleContent.replace(redirectRegex, "");
+          }
+
+          ruleContent = ruleContent.trim();
+          if (ruleContent === "") {
+            await fs.rm(destRulePath, { force: true });
+            // Clean up empty directories if left behind (like .github/)
+            if (ruleFile.includes("/")) {
+              const parentDir = path.dirname(destRulePath);
+              try {
+                const remainingFiles = await fs.readdir(parentDir);
+                if (remainingFiles.length === 0) {
+                  await fs.rmdir(parentDir);
+                  console.log(
+                    `✓ Removed empty parent directory: ${path.basename(parentDir)}`,
+                  );
+                }
+              } catch {}
+            }
+            console.log(`✓ Removed empty rule file: ${ruleFile}`);
+          } else {
+            await fs.writeFile(destRulePath, ruleContent + "\n");
+            console.log(`✓ Stripped redirection from: ${ruleFile}`);
+          }
+        } catch (err) {
+          console.warn(
+            `⚠ Could not process ${ruleFile} during uninstall: ${err.message}`,
+          );
+        }
+      }
+
+      console.log("\n=============================================");
+      console.log("   Uninstallation completed successfully!    ");
+      console.log("=============================================\n");
+    } catch (err) {
+      console.error(`✗ Uninstallation failed: ${err.message}`);
+      process.exit(1);
+    }
+    return;
+  }
+
   let overwriteMode = false;
   let selectedFiles = [];
 
