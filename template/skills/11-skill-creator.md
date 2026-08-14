@@ -40,5 +40,5 @@ description: Clear, single-line description outlining what the skill does and ex
 ## III. Verification & Packaging
 
 1. **Test Scripts:** Execute all bundled scripts locally first to ensure they output clean, LLM-friendly stdout and suppress standard stack traces.
-2. **Remove Placeholders:** Ensure absolutely zero placeholders or "TODO" items remain in any markdown or script.
+2. **Remove Placeholders:** Ensure absolutely zero placeholders or task indicators remain in any markdown or script.
 3. **Zip Packaging:** Once verified, zip the skill directory and rename its extension to `.skill` (e.g., `zip -r my-skill.skill my-skill-folder/`) for distribution and installation.

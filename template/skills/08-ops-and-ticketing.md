@@ -21,7 +21,7 @@ All tasks, planning, and roadmaps are version-controlled in the `.tickets/` fold
 ```
 
 ### 1. File Naming Rules
-- Filenames and internal ticket IDs must be **strictly status-neutral** (e.g., `TCK-101-database-fix.md`, NOT `TCK-TODO-101.md`).
+- Filenames and internal ticket IDs must be **strictly status-neutral** (e.g., `TCK-101-database-fix.md`, NOT `TCK-OPEN-101.md`).
 - This ensures that when moving a ticket (e.g., from `open/` to `ongoing/`), the file can be moved using `git mv` without changing the filename, preserving Git commit history and relative markdown links.
 
 ### 2. Transitioning & Closing
