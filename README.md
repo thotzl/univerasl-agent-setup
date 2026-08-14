@@ -8,20 +8,43 @@
 
 ## Quick Start (Installation)
 
-To bootstrap or integrate the scaffolding into any target repository, navigate to your target project directory and execute the installer using its NPM script prefix:
+To integrate this scaffolding into any target codebase, navigate to your target project folder in your terminal and execute the installer:
 
 ```bash
-npm start --prefix ~/projects/universal-agent-setup
+npm start --prefix <path-to-universal-agent-setup-repo>
 ```
 
-Alternatively, if you are working directly inside the `universal-agent-setup` repository, you can start the installer or run the tests using:
+### Path Resolution Examples:
+
+The installer supports absolute, relative, and shell home-directory (`~`) shortcuts. Choose the command that matches where you cloned the repository:
+
+- **If cloned under your user home directory (standard):**
+  ```bash
+  npm start --prefix ~/projects/universal-agent-setup
+  ```
+- **Using relative directory paths:**
+  ```bash
+  npm start --prefix ../universal-agent-setup
+  ```
+- **Using absolute system paths:**
+  ```bash
+  npm start --prefix /var/repos/universal-agent-setup
+  ```
+
+---
+
+## Workspace Script Shortcuts
+
+If you are working directly inside the `universal-agent-setup` repository itself, you can utilize these script shortcuts:
 
 ```bash
-npm start     # Runs the interactive CLI installer
+npm start     # Runs the interactive CLI installer locally
 npm test      # Runs the comprehensive E2E and compliance test suite
 ```
 
-### 📓 Official Wiki Documentation
+---
+
+## 📓 Official Wiki Documentation
 
 Click any link below to jump directly to its beautifully rendered, official documentation page on the GitHub Wiki:
 
