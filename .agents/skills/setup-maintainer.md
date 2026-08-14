@@ -8,7 +8,7 @@ You are working inside the `universal-agent-setup` workspace. Your primary task 
 
 ## 1. Modularity & Zero Redundancy
 - **No Direct Copying:** Never copy identical sections (such as KISS/DRY or pre-flight checklists) across multiple markdown templates under `template/skills/`.
-- **Structured Includes:** Write core concepts into `template/shared/` and reference them using `{{ INCLUDE: shared/filename.md }}` inside the skill templates. The Node.js installer (`bin/cli.js`) is responsible for compiling and flattening these files during target workspace deployments.
+- **Structured Includes:** Write core concepts into `template/shared/` and reference them using `{{ INCLUDE: filename.md }}` inside the skill templates. The Node.js installer (`bin/cli.js`) is responsible for compiling and flattening these files during target workspace deployments.
 
 ## 2. Strict English Policy
 - **No German in Assets:** All markdown skills, scripts, comments, logs, configuration files, and installer prompts MUST be strictly authored in English. German is reserved exclusively for conversational chat-log discussions with Torsten.

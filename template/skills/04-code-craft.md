@@ -12,11 +12,11 @@ Act as both implementer **and** reviewer. For every non-trivial task:
 4. **Simplify:** Remove any unnecessary complexity before final delivery.
 
 ## II. Development Principles
-{{ INCLUDE: shared/kiss-dry.md }}
+{{ INCLUDE: kiss-dry.md }}
 
 ## III. Readability & Comments
 - **Why, not What:** Write code comments exclusively in English to explain the *reasons* behind non-obvious logic. Do not write comment lines that merely restate what the code does.
 - **Explicit Types:** Use precise types, discriminated unions, and avoid unsafe casts or silencing errors via `any` or compiler suppressions.
 
 ## IV. Pre-Flight Checklist
-{{ INCLUDE: shared/pre-flight-checklist.md }}
+{{ INCLUDE: pre-flight-checklist.md }}

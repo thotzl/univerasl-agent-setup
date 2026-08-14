@@ -14,5 +14,5 @@ description: Master directive for high-velocity, high-discipline engineering. In
 - **State Handoffs:** For multi-session context persistence, write current architecture, decisions, and active bugs to a `SESSION_STATE.md` file in `.agents/artifacts/`.
 
 ## III. Core Philosophical Pillars
-{{ INCLUDE: shared/kiss-dry.md }}
+{{ INCLUDE: kiss-dry.md }}
 - **AbsProduct Pattern:** Prioritize high modularity. When extending software modules or core layers, prefer creating isolated, specialized custom modules/plugins rather than directly mutating or hacking core framework logic.
