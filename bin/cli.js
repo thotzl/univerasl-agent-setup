@@ -332,6 +332,7 @@ async function main() {
       ".windsurfrules",
       ".clinerules",
       ".copilotrules",
+      "CLAUDE.md",
       "GEMINI.md",
       ".gemini",
       ".geminirules",

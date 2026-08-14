@@ -170,6 +170,7 @@ async function verifyInstallation(
     ".windsurfrules",
     ".clinerules",
     ".copilotrules",
+    "CLAUDE.md",
     "GEMINI.md",
     ".gemini",
     ".geminirules",
@@ -237,13 +238,17 @@ async function runE2ETests() {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
 
-    // Pre-create a custom local AGENTS.md and an existing .cursorrules
+    // Pre-create a custom local AGENTS.md and an existing .cursorrules and CLAUDE.md
     const originalContent =
       "# My Custom Project Instructions\n- Do things my way\n";
     await fs.writeFile(path.join(TEST_DIR, "AGENTS.md"), originalContent);
     await fs.writeFile(
       path.join(TEST_DIR, ".cursorrules"),
       "# Custom Cursor rules\n",
+    );
+    await fs.writeFile(
+      path.join(TEST_DIR, "CLAUDE.md"),
+      "# Custom Claude rules\n",
     );
 
     await runCliHeadless(TEST_DIR, "safe", "1,2");
@@ -260,6 +265,16 @@ async function runE2ETests() {
     if (!cursorrulesMerged.startsWith("# Custom Cursor rules")) {
       throw new Error(
         "Safe Merge failed: Original .cursorrules content was overwritten!",
+      );
+    }
+
+    const clauderulesMerged = await fs.readFile(
+      path.join(TEST_DIR, "CLAUDE.md"),
+      "utf-8",
+    );
+    if (!clauderulesMerged.startsWith("# Custom Claude rules")) {
+      throw new Error(
+        "Safe Merge failed: Original CLAUDE.md content was overwritten!",
       );
     }
 
