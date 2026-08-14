@@ -14,16 +14,15 @@ universal-agent-setup/
 ├── README.md                  # Root pointer to this Wiki
 ├── bin/
 │   └── cli.js                 # Interactive Node-native installer
-├── docs/                      # Core Wiki documentation
+├── docs/                      # Core Documentation & Wiki Space (Flat Folder)
+│   ├── Home.md                # This page (Wiki Landing Page)
+│   ├── SUMMARY.md             # Wiki Sidebar / Table of Contents
 │   ├── ARCHITECTURE.md        # Deep dive into modular compilation and includes
 │   ├── SCRIPTS.md             # Guide on using the bundled neutral agent scripts
-│   └── skills/                # GitHub Wiki Space
-│       ├── Home.md            # This page (Wiki Landing Page)
-│       ├── SUMMARY.md         # Wiki Sidebar / Table of Contents
-│       ├── 01-behavioral-baseline.md
-│       ├── 02-analytical-shortcuts.md
-│       ...
-│       └── 11-skill-creator.md
+│   ├── 01-behavioral-baseline.md
+│   ├── 02-analytical-shortcuts.md
+│   ...
+│   └── 11-skill-creator.md
 ```
 
 ## 🚀 Installation & Integration
