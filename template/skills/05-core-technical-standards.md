@@ -1,5 +1,5 @@
 ---
-name: technical-standards
+name: core-technical-standards
 description: Global architectural standards. Emphasizes schema-first design, data-logic separation, and modular safety boundaries.
 ---
 

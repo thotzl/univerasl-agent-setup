@@ -1,5 +1,5 @@
 ---
-name: behavioral-baseline
+name: core-behavioral-baseline
 description: Core interaction principles, cognitive alignment, and communication style. Trigger this to align tone, reduce verbosity, or re-establish a sparring partner dynamic.
 ---
 

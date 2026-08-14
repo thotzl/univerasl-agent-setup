@@ -1,5 +1,5 @@
 ---
-name: browser-automation
+name: core-browser-automation
 description: Structured UI exploration, WebMCP, state-injection queries, and robust DOM fallbacks.
 ---
 

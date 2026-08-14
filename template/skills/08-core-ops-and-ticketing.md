@@ -1,5 +1,5 @@
 ---
-name: ops-and-ticketing
+name: core-ops-and-ticketing
 description: GitOps workflow, Markdown-based local ticketing (.tickets/), and atomic changelog maintenance rules.
 ---
 

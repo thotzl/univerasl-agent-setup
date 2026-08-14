@@ -1,5 +1,5 @@
 ---
-name: database-safety
+name: core-database-safety
 description: Safety mandates for schema evolution, transactional migration boundaries, and local workspace db resets.
 ---
 

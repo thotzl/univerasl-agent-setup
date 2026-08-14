@@ -1,5 +1,5 @@
 ---
-name: redux-investigator
+name: core-redux-investigator
 description: Investigate and manipulate live Redux state in the browser using JavaScript evaluation. Use when instructed to analyze Redux state or dispatch actions like the Redux DevTools extension.
 ---
 

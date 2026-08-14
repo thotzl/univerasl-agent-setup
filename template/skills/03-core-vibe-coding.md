@@ -1,5 +1,5 @@
 ---
-name: vibe-coding
+name: core-vibe-coding
 description: Master directive for high-velocity, high-discipline engineering. Integrates sparring, Phase Gates, Definition of Done, and modular design.
 ---
 

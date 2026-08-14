@@ -1,5 +1,5 @@
 ---
-name: testing-strategies
+name: core-testing-strategies
 description: Reproduction-first, Right-lane allocation, and surgical mocking principles for robust test verification.
 ---
 

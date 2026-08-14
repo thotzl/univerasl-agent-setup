@@ -1,5 +1,5 @@
 ---
-name: skill-creator
+name: core-skill-creator
 description: Framework-agnostic guide for creating modular, self-contained AI skills that extend agent capabilities with specialized knowledge.
 ---
 

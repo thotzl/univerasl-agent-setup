@@ -1,5 +1,5 @@
 ---
-name: context-management
+name: core-context-management
 description: High context-window efficiency through extractive compression, workspace sandboxing, and local log parsing.
 ---
 

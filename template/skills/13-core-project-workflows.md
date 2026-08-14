@@ -1,5 +1,5 @@
 ---
-name: project-workflows
+name: core-project-workflows
 description: Maintains workspace context, persisting findings into .agents/skills/, context dumps and REPO_MAP sync, multi-session handoffs, and strict phase-gates and anti-overstepping execution boundaries.
 ---
 

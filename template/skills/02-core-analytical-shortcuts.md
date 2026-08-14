@@ -1,5 +1,5 @@
 ---
-name: analytical-shortcuts
+name: core-analytical-shortcuts
 description: Provides semantic shortcuts (AIC, DoD, MECE, OODA, TL;DR) to enforce highly analytical, objective, and efficient AI responses without conversational boilerplate.
 ---
 

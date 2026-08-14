@@ -1,5 +1,5 @@
 ---
-name: code-craft
+name: core-code-craft
 description: Stack-agnostic engineering standards. Focuses on implement-review-simplify, readability, input validation, and safety boundaries.
 ---
 
