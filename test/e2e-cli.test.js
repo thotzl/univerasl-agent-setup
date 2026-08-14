@@ -164,7 +164,7 @@ async function verifyInstallation(
     }
   }
 
-  // 7. Verify Agent Redirection files
+  // 7. Verify Agent Redirection files (only if they actually exist)
   const agentRuleFiles = [
     ".cursorrules",
     ".windsurfrules",
@@ -177,10 +177,17 @@ async function verifyInstallation(
 
   for (const r of agentRuleFiles) {
     const rulePath = path.join(target, r);
-    await fs.access(rulePath);
-    const ruleContent = await fs.readFile(rulePath, "utf-8");
-    if (!ruleContent.includes("Universal AI Agent & Copilot Redirection")) {
-      throw new Error(`Redirection check failed in ${r}!`);
+    let ruleExists = false;
+    try {
+      await fs.access(rulePath);
+      ruleExists = true;
+    } catch {}
+
+    if (ruleExists) {
+      const ruleContent = await fs.readFile(rulePath, "utf-8");
+      if (!ruleContent.includes("Universal AI Agent & Copilot Redirection")) {
+        throw new Error(`Redirection check failed in ${r}!`);
+      }
     }
   }
 }
@@ -230,10 +237,14 @@ async function runE2ETests() {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
 
-    // Pre-create a custom local AGENTS.md
+    // Pre-create a custom local AGENTS.md and an existing .cursorrules
     const originalContent =
       "# My Custom Project Instructions\n- Do things my way\n";
     await fs.writeFile(path.join(TEST_DIR, "AGENTS.md"), originalContent);
+    await fs.writeFile(
+      path.join(TEST_DIR, ".cursorrules"),
+      "# Custom Cursor rules\n",
+    );
 
     await runCliHeadless(TEST_DIR, "safe", "1,2");
     await verifyInstallation(TEST_DIR, 2, true, [
@@ -241,7 +252,17 @@ async function runE2ETests() {
       "02-core-analytical-shortcuts.md",
     ]);
 
-    // Verify custom original content was preserved
+    // Verify custom original content was preserved and redirection was appended
+    const cursorrulesMerged = await fs.readFile(
+      path.join(TEST_DIR, ".cursorrules"),
+      "utf-8",
+    );
+    if (!cursorrulesMerged.startsWith("# Custom Cursor rules")) {
+      throw new Error(
+        "Safe Merge failed: Original .cursorrules content was overwritten!",
+      );
+    }
+
     const agentsMdMerged = await fs.readFile(
       path.join(TEST_DIR, "AGENTS.md"),
       "utf-8",

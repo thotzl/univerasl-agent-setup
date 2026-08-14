@@ -340,39 +340,36 @@ async function main() {
         ruleFileExists = true;
       } catch {}
 
+      // ONLY process files that already exist to prevent polluting the workspace with unused rule files!
+      if (!ruleFileExists) continue;
+
       try {
-        if (ruleFileExists) {
-          if (!overwriteMode) {
-            // Safe Merge: Append redirection if not already present
-            let existingRuleContent = await fs.readFile(destRulePath, "utf-8");
-            if (
-              !existingRuleContent.includes(
-                "Universal AI Agent & Copilot Redirection",
-              )
-            ) {
-              await fs.writeFile(
-                destRulePath,
-                existingRuleContent + redirectComment,
-              );
-              console.log(
-                `✓ Appended redirection pointer to existing ${ruleFile}`,
-              );
-            } else {
-              console.log(
-                `! ${ruleFile} already contains redirection. Skipping.`,
-              );
-            }
-          } else {
-            // Overwrite mode: Replace completely with redirection pointer
-            await fs.writeFile(destRulePath, redirectComment);
+        if (!overwriteMode) {
+          // Safe Merge: Append redirection if not already present
+          let existingRuleContent = await fs.readFile(destRulePath, "utf-8");
+          if (
+            !existingRuleContent.includes(
+              "Universal AI Agent & Copilot Redirection",
+            )
+          ) {
+            await fs.writeFile(
+              destRulePath,
+              existingRuleContent + redirectComment,
+            );
             console.log(
-              `✓ Overwrote ${ruleFile} with clean redirection pointer`,
+              `✓ Merged redirection pointer into existing ${ruleFile}`,
+            );
+          } else {
+            console.log(
+              `! ${ruleFile} already contains redirection. Skipping.`,
             );
           }
         } else {
-          // If file doesn't exist, create it in both Safe Merge and Overwrite mode
+          // Overwrite mode: Replace completely with redirection pointer
           await fs.writeFile(destRulePath, redirectComment);
-          console.log(`✓ Created clean redirection ${ruleFile}`);
+          console.log(
+            `✓ Overwrote existing ${ruleFile} with clean redirection pointer`,
+          );
         }
       } catch (err) {
         console.warn(
