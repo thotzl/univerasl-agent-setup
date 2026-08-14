@@ -1,0 +1,125 @@
+{
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "core-behavioral-baseline",
+      "menuId": "1",
+      "file": "01-core-behavioral-baseline.md",
+      "version": "1.0.0",
+      "description": "Core direct tone, sparring partner rules",
+      "tags": ["core", "behavior"],
+      "required": true
+    },
+    {
+      "id": "core-analytical-shortcuts",
+      "menuId": "2",
+      "file": "02-core-analytical-shortcuts.md",
+      "version": "1.0.0",
+      "description": "AIC, CoT, MECE, Raw, Inquiry directives",
+      "tags": ["core", "analysis"],
+      "required": false
+    },
+    {
+      "id": "core-vibe-coding",
+      "menuId": "3",
+      "file": "03-core-vibe-coding.md",
+      "version": "1.0.0",
+      "description": "Schema-first, DoD, Phase-gates engineering standard",
+      "tags": ["core", "coding"],
+      "required": false
+    },
+    {
+      "id": "core-code-craft",
+      "menuId": "4",
+      "file": "04-core-code-craft.md",
+      "version": "1.0.0",
+      "description": "Implement-Review-Simplify, KISS, Pre-flight checks",
+      "tags": ["core", "coding"],
+      "required": false
+    },
+    {
+      "id": "core-technical-standards",
+      "menuId": "5",
+      "file": "05-core-technical-standards.md",
+      "version": "1.0.0",
+      "description": "Data-logic separation (ECS), stable interfaces",
+      "tags": ["core", "standards"],
+      "required": false
+    },
+    {
+      "id": "core-testing-strategies",
+      "menuId": "6",
+      "file": "06-core-testing-strategies.md",
+      "version": "1.0.0",
+      "description": "Reproduction-first, surgical mocking rules",
+      "tags": ["core", "testing"],
+      "required": false
+    },
+    {
+      "id": "core-database-safety",
+      "menuId": "7",
+      "file": "07-core-database-safety.md",
+      "version": "1.0.0",
+      "description": "No experimental rollbacks, clean local resets",
+      "tags": ["core", "database"],
+      "required": false
+    },
+    {
+      "id": "core-ops-and-ticketing",
+      "menuId": "8",
+      "file": "08-core-ops-and-ticketing.md",
+      "version": "1.0.0",
+      "description": "Markdown ticketing (.tickets/), atomic changelogs",
+      "tags": ["core", "ops"],
+      "required": false
+    },
+    {
+      "id": "core-browser-automation",
+      "menuId": "9",
+      "file": "09-core-browser-automation.md",
+      "version": "1.0.0",
+      "description": "WebMCP & structured state-injection (Redux/Zustand)",
+      "tags": ["core", "browser"],
+      "required": false
+    },
+    {
+      "id": "core-context-management",
+      "menuId": "10",
+      "file": "10-core-context-management.md",
+      "version": "1.0.0",
+      "description": "Extractive compression & local script sandbox",
+      "tags": ["core", "context"],
+      "required": false,
+      "assets": true
+    },
+    {
+      "id": "core-skill-creator",
+      "menuId": "11",
+      "file": "11-core-skill-creator.md",
+      "version": "1.0.0",
+      "description": "Agnostic guidelines to create modular agent skills",
+      "tags": ["core", "skills"],
+      "required": false
+    },
+    {
+      "id": "core-redux-investigator",
+      "menuId": "12",
+      "file": "12-core-redux-investigator.md",
+      "version": "1.0.0",
+      "description": "Live Redux state analysis and browser action dispatching",
+      "tags": ["core", "redux", "browser"],
+      "required": false,
+      "assets": true
+    },
+    {
+      "id": "core-project-workflows",
+      "menuId": "13",
+      "file": "13-core-project-workflows.md",
+      "version": "1.0.0",
+      "description": "Workspace context, REPO_MAP sync, and Phase-gates limits",
+      "tags": ["core", "workflows"],
+      "required": false,
+      "assets": true
+    }
+  ]
+}

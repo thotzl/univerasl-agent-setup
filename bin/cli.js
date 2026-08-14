@@ -232,73 +232,14 @@ async function main() {
   let overwriteMode = false;
   let selectedFiles = [];
 
-  const modules = [
-    {
-      id: "1",
-      name: "01-core-behavioral-baseline.md",
-      desc: "Core direct tone, sparring partner rules",
-    },
-    {
-      id: "2",
-      name: "02-core-analytical-shortcuts.md",
-      desc: "AIC, CoT, MECE, Raw, Inquiry directives",
-    },
-    {
-      id: "3",
-      name: "03-core-vibe-coding.md",
-      desc: "Schema-first, DoD, Phase-gates engineering standard",
-    },
-    {
-      id: "4",
-      name: "04-core-code-craft.md",
-      desc: "Implement-Review-Simplify, KISS, Pre-flight checks",
-    },
-    {
-      id: "5",
-      name: "05-core-technical-standards.md",
-      desc: "Data-logic separation (ECS), stable interfaces",
-    },
-    {
-      id: "6",
-      name: "06-core-testing-strategies.md",
-      desc: "Reproduction-first, surgical mocking rules",
-    },
-    {
-      id: "7",
-      name: "07-core-database-safety.md",
-      desc: "No experimental rollbacks, clean local resets",
-    },
-    {
-      id: "8",
-      name: "08-core-ops-and-ticketing.md",
-      desc: "Markdown ticketing (.tickets/), atomic changelogs",
-    },
-    {
-      id: "9",
-      name: "09-core-browser-automation.md",
-      desc: "WebMCP & structured state-injection (Redux/Zustand)",
-    },
-    {
-      id: "10",
-      name: "10-core-context-management.md",
-      desc: "Extractive compression & local script sandbox",
-    },
-    {
-      id: "11",
-      name: "11-core-skill-creator.md",
-      desc: "Agnostic guidelines to create modular agent skills",
-    },
-    {
-      id: "12",
-      name: "12-core-redux-investigator.md",
-      desc: "Live Redux state analysis and browser action dispatching",
-    },
-    {
-      id: "13",
-      name: "13-core-project-workflows.md",
-      desc: "Workspace context, REPO_MAP sync, and Phase-gates limits",
-    },
-  ];
+  // Load skills manifest from skills.json
+  const skillsManifestPath = path.join(REPO_ROOT, "template", "skills", "skills.json");
+  const skillsManifest = JSON.parse(await fs.readFile(skillsManifestPath, "utf-8"));
+  const modules = skillsManifest.skills.map((s) => ({
+    id: s.menuId,
+    name: s.file,
+    desc: s.description,
+  }));
 
   if (cliOptions.headless) {
     // ------------------ HEADLESS MODE ------------------
