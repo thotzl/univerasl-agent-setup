@@ -170,6 +170,9 @@ async function verifyInstallation(
     ".windsurfrules",
     ".clinerules",
     ".copilotrules",
+    "GEMINI.md",
+    ".gemini",
+    ".geminirules",
   ];
 
   for (const r of agentRuleFiles) {

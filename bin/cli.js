@@ -325,6 +325,9 @@ async function main() {
       ".windsurfrules",
       ".clinerules",
       ".copilotrules",
+      "GEMINI.md",
+      ".gemini",
+      ".geminirules",
     ];
 
     const redirectComment = `\n\n# ==============================================================================\n#                 Universal AI Agent & Copilot Redirection\n# ==============================================================================\n# This workspace utilizes a unified cognitive rule-structure. To prevent context \n# drift, hallucinations, or anti-hallucination rule violations, ALL AI agents \n# (Cursor, Copilot, Windsurf, Gemini, Cline, Roo Code, etc.) working inside this\n# codebase MUST read, internalize, and strictly prioritize:\n# \n# 1. The master root mandates in: AGENTS.md\n# 2. The compiled, flattened specialized skills in: .agents/skills/\n# ==============================================================================\n`;
