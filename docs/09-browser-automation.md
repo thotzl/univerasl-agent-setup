@@ -5,6 +5,7 @@
 The **Browser Automation** module provides advanced workflows and guidelines for interacting with live web applications and inspecting browser-side states (such as Redux, Zustand, or global singletons).
 
 ### Why This Skill Exists
+
 Agents often struggle with UI automation because they guess DOM CSS classes or volatile selectors, leading to fragile, flaky scripts. Furthermore, they are often unaware that they can inspect global singletons directly instead of scraping the DOM.
 
 ---

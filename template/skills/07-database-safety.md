@@ -2,6 +2,7 @@
 name: database-safety
 description: Safety mandates for schema evolution, transactional migration boundaries, and local workspace db resets.
 ---
+
 # Database Safety
 
 ## I. Evolution & Migrations

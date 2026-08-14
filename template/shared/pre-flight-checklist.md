@@ -1,4 +1,5 @@
 Before delivering code or finalizing a task, execute this verification scan:
+
 1. **Types Safe:** Ensure there are no type conversions, unsafe casts, or compilation warnings.
 2. **Imports Valid:** Verify that all referenced fields, types, and library APIs exist.
 3. **Null/Undefined Handled:** Check for potential null-pointer or index exceptions.

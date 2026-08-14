@@ -5,6 +5,7 @@
 The **Technical Standards** module defines core architectural constraints for any codebase. It enforces schema-first design, a data-logic separation mindset (ECS), and strict API stability boundaries.
 
 ### Why This Skill Exists
+
 Many software projects suffer from spaghetti state mutation where database schemas, business layers, and UI components are deeply intertwined, making refactoring fragile and prone to regressions.
 
 ---
@@ -14,7 +15,7 @@ Many software projects suffer from spaghetti state mutation where database schem
 When active, the agent enforces these high-level architectural constraints:
 
 1. **Schema-First (Contract-Driven) Development:**
-   All data transfer objects (DTOs), API contracts, types, and input/output validation schemas must be fully written and validated *before* any dependent business or UI rendering logic is implemented.
+   All data transfer objects (DTOs), API contracts, types, and input/output validation schemas must be fully written and validated _before_ any dependent business or UI rendering logic is implemented.
 2. **Data vs. Logic Separation (ECS Mindset):**
    State must remain pure, simple data. Modifications to state must be isolated to functional systems, modules, or actions, preventing scattered, side-effect-heavy mutations across unrelated layers.
 3. **Modularity & Core Integrity Protection:**

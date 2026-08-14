@@ -8,7 +8,12 @@
   },
   "scripts": {
     "start": "node bin/cli.js",
+    "format": "prettier --write .",
+    "prepare": "node scripts/install-hooks.js",
     "test": "node test/cli.test.js"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
   },
   "keywords": [
     "agents",

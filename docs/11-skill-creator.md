@@ -2,9 +2,10 @@
 
 ## Developer Overview
 
-The **Skill Creator** is a modular guide that instructs agents on how to construct, validate, and package *new* custom skills for any project, maintaining consistency across the team.
+The **Skill Creator** is a modular guide that instructs agents on how to construct, validate, and package _new_ custom skills for any project, maintaining consistency across the team.
 
 ### Why This Skill Exists
+
 As projects evolve, teams need to add specialized custom knowledge or automation scripts. Without a standard guide, agents build custom skills with inconsistent directory layouts, messy metadata, or verbose explanations that clog the context window.
 
 ---

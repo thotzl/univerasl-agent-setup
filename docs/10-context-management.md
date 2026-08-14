@@ -5,6 +5,7 @@
 The **Context Management** skill focuses on keeping the agent's context window extremely lean and token-efficient. It introduces the sandbox environment (`.agents/artifacts/`) and local log parsing.
 
 ### Why This Skill Exists
+
 As AI chat histories grow longer, context window consumption increases rapidly. This causes sessions to become extremely slow, expensive, and error-prone as the agent becomes overwhelmed by irrelevant history logs.
 
 ---

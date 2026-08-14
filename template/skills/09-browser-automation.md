@@ -2,6 +2,7 @@
 name: browser-automation
 description: Structured UI exploration, WebMCP, state-injection queries, and robust DOM fallbacks.
 ---
+
 # Browser Automation
 
 ## I. Interaction Hierarchy

@@ -22,16 +22,18 @@ npm test      # Runs the comprehensive E2E and compliance test suite
 ```
 
 ### Modular Skills Directory
+
 The full catalog of modular, compiled skills is documented in detail in our Wiki space. Browse the documentation files directly in the repository or through the Wiki sidebar:
-*   [Wiki Landing Page (Home)](docs/Home.md)
-*   [01. Behavioral Baseline Guide](docs/01-behavioral-baseline.md)
-*   [02. Analytical Shortcuts Guide](docs/02-analytical-shortcuts.md)
-*   [03. Vibe Coding Standard Guide](docs/03-vibe-coding.md)
-*   [04. Code Craft Guide](docs/04-code-craft.md)
-*   [05. Technical Standards Guide](docs/05-technical-standards.md)
-*   [06. Testing Strategies Guide](docs/06-testing-strategies.md)
-*   [07. Database Safety Guide](docs/07-database-safety.md)
-*   [08. Operations & Ticketing Guide](docs/08-ops-and-ticketing.md)
-*   [09. Browser Automation Guide](docs/09-browser-automation.md)
-*   [10. Context Management Guide](docs/10-context-management.md)
-*   [11. Skill Creator Guide](docs/11-skill-creator.md)
+
+- [Wiki Landing Page (Home)](docs/Home.md)
+- [01. Behavioral Baseline Guide](docs/01-behavioral-baseline.md)
+- [02. Analytical Shortcuts Guide](docs/02-analytical-shortcuts.md)
+- [03. Vibe Coding Standard Guide](docs/03-vibe-coding.md)
+- [04. Code Craft Guide](docs/04-code-craft.md)
+- [05. Technical Standards Guide](docs/05-technical-standards.md)
+- [06. Testing Strategies Guide](docs/06-testing-strategies.md)
+- [07. Database Safety Guide](docs/07-database-safety.md)
+- [08. Operations & Ticketing Guide](docs/08-ops-and-ticketing.md)
+- [09. Browser Automation Guide](docs/09-browser-automation.md)
+- [10. Context Management Guide](docs/10-context-management.md)
+- [11. Skill Creator Guide](docs/11-skill-creator.md)

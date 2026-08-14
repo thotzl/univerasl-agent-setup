@@ -2,6 +2,7 @@
 name: technical-standards
 description: Global architectural standards. Emphasizes schema-first design, data-logic separation, and modular safety boundaries.
 ---
+
 # Technical Standards
 
 ## I. Architectural Core

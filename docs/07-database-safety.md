@@ -5,6 +5,7 @@
 The **Database Safety** module enforces strict transactional boundaries, robust schema evolution rules, and clean local reset strategies.
 
 ### Why This Skill Exists
+
 Agents can easily corrupt or lock local databases by running manual schema changes, executing un-wrapped or un-isolated mutations, or attempting speculative, buggy "down-migrations" when a migration fails.
 
 ---

@@ -1,6 +1,6 @@
 # Universal Agent Setup
 
-Deterministic, modular, and industry-standard AI agent scaffolding and skills installer. 
+Deterministic, modular, and industry-standard AI agent scaffolding and skills installer.
 
 This repository provides a highly optimized set of workflow files, unyielding behavior baselines, and engineering principles that trim any AI agent (e.g., Cursor, Gemini, Claude, Copilot) for maximum precision, safety, and efficiency across any codebase.
 
@@ -43,6 +43,7 @@ npm test      # Runs the E2E and compliance test suite
 ```
 
 ### Installation Modes:
+
 - **Safe Merge (Default):** Appends the unyielding behavioral rules to your existing `AGENTS.md` inside a `# --- UNIVERSAL AGENT DIRECTIVES ---` block and copies selected skills without deleting existing project-specific skills.
 - **Overwrite:** Wipes the target `.agents/` folder and completely replaces your root `AGENTS.md` and `.aiignore` configurations.
 
@@ -50,11 +51,12 @@ npm test      # Runs the E2E and compliance test suite
 
 ## 🛠️ Compilation & Compilation Engine
 
-To ensure dry maintenance, common concepts (like KISS/DRY or pre-flight check-lists) are stored as atomic markdown snippets inside `template/shared/`. 
+To ensure dry maintenance, common concepts (like KISS/DRY or pre-flight check-lists) are stored as atomic markdown snippets inside `template/shared/`.
 
 The installer (`bin/cli.js`) automatically parses and resolves these `{{ INCLUDE: file.md }}` patterns on the fly.
 
 This provides the best of both worlds:
+
 1. **DRY Maintenance:** Edit shared concepts in a single file inside this repository.
 2. **Flattened AI Context:** The agent in the target repository gets a complete, self-contained markdown file, minimizing context-jumping and reading errors.
 

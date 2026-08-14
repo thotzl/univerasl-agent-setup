@@ -2,6 +2,7 @@
 name: skill-creator
 description: Framework-agnostic guide for creating modular, self-contained AI skills that extend agent capabilities with specialized knowledge.
 ---
+
 # Skill Creator
 
 This guide provides instructions for creating, validating, and packaging modular, self-contained AI skills.
@@ -9,7 +10,7 @@ This guide provides instructions for creating, validating, and packaging modular
 ## I. Core Principles
 
 - **Concise Context:** Keep skill rules lean. AI models are already highly capable; only document non-obvious, domain-specific procedural steps, constraints, and schemas.
-- **Progressive Disclosure:** 
+- **Progressive Disclosure:**
   1. Keep the core instructions inside `SKILL.md` under 400 lines.
   2. Move heavy, verbose reference material, API specs, or data models to separate markdown files inside a `references/` subdirectory.
   3. Load references on-demand using relative markdown links (e.g., `[API Spec](references/api_spec.md)`).
@@ -29,7 +30,9 @@ skill-name/
 ```
 
 ### 1. Frontmatter Format
+
 The `SKILL.md` file must start with clean YAML frontmatter:
+
 ```yaml
 ---
 name: skill-name

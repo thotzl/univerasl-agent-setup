@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-import fs from 'fs/promises';
-import path from 'path';
-import readline from 'readline/promises';
-import { stdin as input, stdout as output } from 'process';
+import fs from "fs/promises";
+import path from "path";
+import readline from "readline/promises";
+import { stdin as input, stdout as output } from "process";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const REPO_ROOT = path.resolve(__dirname, '..');
+const REPO_ROOT = path.resolve(__dirname, "..");
 
 // Helper to ask questions in terminal
 async function askQuestion(rl, question, defaultValue) {
@@ -16,18 +16,23 @@ async function askQuestion(rl, question, defaultValue) {
 
 // Helper to resolve template includes recursively
 async function compileTemplate(filePath, sharedDir) {
-  let content = await fs.readFile(filePath, 'utf-8');
+  let content = await fs.readFile(filePath, "utf-8");
   const includeRegex = /\{\{\s*INCLUDE:\s*(.*?)\s*\}\}/g;
   let match;
-  
+
   while ((match = includeRegex.exec(content)) !== null) {
     const includePath = path.resolve(sharedDir, match[1]);
     try {
-      const includeContent = await fs.readFile(includePath, 'utf-8');
+      const includeContent = await fs.readFile(includePath, "utf-8");
       content = content.replace(match[0], includeContent);
     } catch (err) {
-      console.warn(`Warning: Could not include ${match[1]} from ${includePath}: ${err.message}`);
-      content = content.replace(match[0], `<!-- Failed to include ${match[1]} -->`);
+      console.warn(
+        `Warning: Could not include ${match[1]} from ${includePath}: ${err.message}`,
+      );
+      content = content.replace(
+        match[0],
+        `<!-- Failed to include ${match[1]} -->`,
+      );
     }
     // Reset regex index because we modified content length
     includeRegex.lastIndex = 0;
@@ -43,21 +48,21 @@ function parseArgs() {
     mode: null,
     skills: null,
     yes: false,
-    headless: false
+    headless: false,
   };
-  
+
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--target' || arg === '-t') {
+    if (arg === "--target" || arg === "-t") {
       options.target = args[++i];
       options.headless = true;
-    } else if (arg === '--mode' || arg === '-m') {
+    } else if (arg === "--mode" || arg === "-m") {
       options.mode = args[++i];
       options.headless = true;
-    } else if (arg === '--skills' || arg === '-s') {
+    } else if (arg === "--skills" || arg === "-s") {
       options.skills = args[++i];
       options.headless = true;
-    } else if (arg === '--yes' || arg === '-y') {
+    } else if (arg === "--yes" || arg === "-y") {
       options.yes = true;
       options.headless = true;
     }
@@ -66,94 +71,164 @@ function parseArgs() {
 }
 
 async function main() {
-  console.log('\n=============================================');
-  console.log('    Universal Agent Scaffolding Installer    ');
-  console.log('=============================================\n');
+  console.log("\n=============================================");
+  console.log("    Universal Agent Scaffolding Installer    ");
+  console.log("=============================================\n");
 
   const cliOptions = parseArgs();
-  
+
   const originalCwd = process.env.INIT_CWD || process.cwd();
   let targetDir = originalCwd;
   let overwriteMode = false;
   let selectedFiles = [];
-  
+
   const modules = [
-    { id: '1', name: '01-behavioral-baseline.md', desc: 'Core direct tone, sparring partner rules' },
-    { id: '2', name: '02-analytical-shortcuts.md', desc: 'AIC, CoT, MECE, Raw, Inquiry directives' },
-    { id: '3', name: '03-vibe-coding.md', desc: 'Schema-first, DoD, Phase-gates engineering standard' },
-    { id: '4', name: '10-context-management.md', desc: 'Extractive compression & local script sandbox' },
-    { id: '5', name: '04-code-craft.md', desc: 'Implement-Review-Simplify, KISS, Pre-flight checks' },
-    { id: '6', name: '05-technical-standards.md', desc: 'Data-logic separation (ECS), stable interfaces' },
-    { id: '7', name: '06-testing-strategies.md', desc: 'Reproduction-first, surgical mocking rules' },
-    { id: '8', name: '07-database-safety.md', desc: 'No experimental rollbacks, clean local resets' },
-    { id: '9', name: '08-ops-and-ticketing.md', desc: 'Markdown ticketing (.tickets/), atomic changelogs' },
-    { id: '10', name: '09-browser-automation.md', desc: 'WebMCP & structured state-injection (Redux/Zustand)' },
-    { id: '11', name: '11-skill-creator.md', desc: 'Agnostic guidelines to create modular agent skills' }
+    {
+      id: "1",
+      name: "01-behavioral-baseline.md",
+      desc: "Core direct tone, sparring partner rules",
+    },
+    {
+      id: "2",
+      name: "02-analytical-shortcuts.md",
+      desc: "AIC, CoT, MECE, Raw, Inquiry directives",
+    },
+    {
+      id: "3",
+      name: "03-vibe-coding.md",
+      desc: "Schema-first, DoD, Phase-gates engineering standard",
+    },
+    {
+      id: "4",
+      name: "10-context-management.md",
+      desc: "Extractive compression & local script sandbox",
+    },
+    {
+      id: "5",
+      name: "04-code-craft.md",
+      desc: "Implement-Review-Simplify, KISS, Pre-flight checks",
+    },
+    {
+      id: "6",
+      name: "05-technical-standards.md",
+      desc: "Data-logic separation (ECS), stable interfaces",
+    },
+    {
+      id: "7",
+      name: "06-testing-strategies.md",
+      desc: "Reproduction-first, surgical mocking rules",
+    },
+    {
+      id: "8",
+      name: "07-database-safety.md",
+      desc: "No experimental rollbacks, clean local resets",
+    },
+    {
+      id: "9",
+      name: "08-ops-and-ticketing.md",
+      desc: "Markdown ticketing (.tickets/), atomic changelogs",
+    },
+    {
+      id: "10",
+      name: "09-browser-automation.md",
+      desc: "WebMCP & structured state-injection (Redux/Zustand)",
+    },
+    {
+      id: "11",
+      name: "11-skill-creator.md",
+      desc: "Agnostic guidelines to create modular agent skills",
+    },
   ];
 
   if (cliOptions.headless) {
     // ------------------ HEADLESS MODE ------------------
-    console.log('Running in Headless (Non-Interactive) Mode...\n');
-    
+    console.log("Running in Headless (Non-Interactive) Mode...\n");
+
     // 1. Resolve target
-    const targetInput = cliOptions.target || '.';
+    const targetInput = cliOptions.target || ".";
     targetDir = path.resolve(originalCwd, targetInput);
-    
+
     // 2. Resolve mode
-    const modeInput = cliOptions.mode || 'safe';
-    overwriteMode = modeInput.toLowerCase() === 'overwrite';
-    
+    const modeInput = cliOptions.mode || "safe";
+    overwriteMode = modeInput.toLowerCase() === "overwrite";
+
     // 3. Resolve skills
-    const skillsInput = cliOptions.skills || 'all';
-    if (skillsInput.toLowerCase() === 'all') {
-      selectedFiles = modules.map(m => m.name);
+    const skillsInput = cliOptions.skills || "all";
+    if (skillsInput.toLowerCase() === "all") {
+      selectedFiles = modules.map((m) => m.name);
     } else {
-      const selectedIds = skillsInput.split(',').map(s => s.trim());
-      selectedFiles = modules.filter(m => selectedIds.includes(m.id) || selectedIds.includes(m.name)).map(m => m.name);
+      const selectedIds = skillsInput.split(",").map((s) => s.trim());
+      selectedFiles = modules
+        .filter(
+          (m) => selectedIds.includes(m.id) || selectedIds.includes(m.name),
+        )
+        .map((m) => m.name);
     }
-    
+
     if (!cliOptions.yes) {
-      console.error('Error: Headless mode requires the --yes or -y flag to confirm execution.');
+      console.error(
+        "Error: Headless mode requires the --yes or -y flag to confirm execution.",
+      );
       process.exit(1);
     }
   } else {
     // ------------------ INTERACTIVE MODE ------------------
     const rl = readline.createInterface({ input, output });
-    
+
     try {
       // 1. Ask Target Directory
-      const targetInput = await askQuestion(rl, 'Enter target installation directory', '.');
+      const targetInput = await askQuestion(
+        rl,
+        "Enter target installation directory",
+        ".",
+      );
       targetDir = path.resolve(originalCwd, targetInput);
-      
+
       // 2. Ask Integration Mode
-      console.log('\nSelect Installation Mode:');
-      console.log(' 1) Safe Merge (Append rules to existing AGENTS.md, merge skills without deleting others)');
-      console.log(' 2) Overwrite (Wipe and replace existing .agents/ and AGENTS.md)');
-      const modeChoice = await askQuestion(rl, 'Enter choice (1 or 2)', '1');
-      overwriteMode = modeChoice === '2';
-      
+      console.log("\nSelect Installation Mode:");
+      console.log(
+        " 1) Safe Merge (Append rules to existing AGENTS.md, merge skills without deleting others)",
+      );
+      console.log(
+        " 2) Overwrite (Wipe and replace existing .agents/ and AGENTS.md)",
+      );
+      const modeChoice = await askQuestion(rl, "Enter choice (1 or 2)", "1");
+      overwriteMode = modeChoice === "2";
+
       // 3. Display Modules
-      console.log('\nAvailable Skill Modules:');
-      modules.forEach(m => {
+      console.log("\nAvailable Skill Modules:");
+      modules.forEach((m) => {
         console.log(`  ${m.id}) ${m.name.padEnd(28)} - ${m.desc}`);
       });
-      
-      const selectChoice = await askQuestion(rl, 'Enter IDs to install (comma-separated, e.g. 1,2,3,5) or "all"', 'all');
-      if (selectChoice.toLowerCase() === 'all') {
-        selectedFiles = modules.map(m => m.name);
+
+      const selectChoice = await askQuestion(
+        rl,
+        'Enter IDs to install (comma-separated, e.g. 1,2,3,5) or "all"',
+        "all",
+      );
+      if (selectChoice.toLowerCase() === "all") {
+        selectedFiles = modules.map((m) => m.name);
       } else {
-        const selectedIds = selectChoice.split(',').map(s => s.trim());
-        selectedFiles = modules.filter(m => selectedIds.includes(m.id)).map(m => m.name);
+        const selectedIds = selectChoice.split(",").map((s) => s.trim());
+        selectedFiles = modules
+          .filter((m) => selectedIds.includes(m.id))
+          .map((m) => m.name);
       }
-      
+
       // 4. Confirm install
       console.log(`\nTarget Location : ${targetDir}`);
-      console.log(`Mode            : ${overwriteMode ? 'OVERWRITE' : 'SAFE INTEGRATE'}`);
+      console.log(
+        `Mode            : ${overwriteMode ? "OVERWRITE" : "SAFE INTEGRATE"}`,
+      );
       console.log(`Skills to Copy  : ${selectedFiles.length} files`);
-      
-      const confirm = await askQuestion(rl, 'Proceed with installation? (y/n)', 'y');
-      if (confirm.toLowerCase() !== 'y') {
-        console.log('Installation cancelled.');
+
+      const confirm = await askQuestion(
+        rl,
+        "Proceed with installation? (y/n)",
+        "y",
+      );
+      if (confirm.toLowerCase() !== "y") {
+        console.log("Installation cancelled.");
         rl.close();
         return;
       }
@@ -165,76 +240,80 @@ async function main() {
       rl.close();
     }
   }
-  
+
   // ------------------ EXECUTION ENGINE ------------------
   try {
-    const templateRoot = path.join(REPO_ROOT, 'template', 'root');
-    const templateSkills = path.join(REPO_ROOT, 'template', 'skills');
-    const templateShared = path.join(REPO_ROOT, 'template', 'shared');
-    const templateScripts = path.join(REPO_ROOT, 'template', 'scripts');
-    
-    const destAgents = path.join(targetDir, '.agents');
-    const destSkills = path.join(destAgents, 'skills');
-    const destArtifacts = path.join(destAgents, 'artifacts');
-    const destState = path.join(destAgents, 'state');
-    const destScripts = path.join(destAgents, 'scripts');
-    
+    const templateRoot = path.join(REPO_ROOT, "template", "root");
+    const templateSkills = path.join(REPO_ROOT, "template", "skills");
+    const templateShared = path.join(REPO_ROOT, "template", "shared");
+    const templateScripts = path.join(REPO_ROOT, "template", "scripts");
+
+    const destAgents = path.join(targetDir, ".agents");
+    const destSkills = path.join(destAgents, "skills");
+    const destArtifacts = path.join(destAgents, "artifacts");
+    const destState = path.join(destAgents, "state");
+    const destScripts = path.join(destAgents, "scripts");
+
     // Ensure basic folders exist
     await fs.mkdir(destAgents, { recursive: true });
     await fs.mkdir(destSkills, { recursive: true });
     await fs.mkdir(destArtifacts, { recursive: true });
     await fs.mkdir(destState, { recursive: true });
-    
+
     // Create gitignored keep files
-    await fs.writeFile(path.join(destArtifacts, '.keep'), '');
-    await fs.writeFile(path.join(destState, '.keep'), '');
-    
+    await fs.writeFile(path.join(destArtifacts, ".keep"), "");
+    await fs.writeFile(path.join(destState, ".keep"), "");
+
     // Handle Root Files
     // .aiignore
-    const srcAiignore = path.join(templateRoot, '.aiignore');
-    const destAiignore = path.join(targetDir, '.aiignore');
-    let aiignoreContent = '';
+    const srcAiignore = path.join(templateRoot, ".aiignore");
+    const destAiignore = path.join(targetDir, ".aiignore");
+    let aiignoreContent = "";
     try {
-      aiignoreContent = await fs.readFile(srcAiignore, 'utf-8');
+      aiignoreContent = await fs.readFile(srcAiignore, "utf-8");
     } catch {
       // Fallback default
       aiignoreContent = `# Agent standard ignores\nnode_modules/\nbuild/\ndist/\n.git/\n\n# Unignore agent directories explicitly so tools can index them\n!.agents/\n!.agents/**/*\n!AGENTS.md\n`;
     }
     await fs.writeFile(destAiignore, aiignoreContent);
-    console.log('✓ Wrote .aiignore (configured to unignore .agents/)');
-    
+    console.log("✓ Wrote .aiignore (configured to unignore .agents/)");
+
     // AGENTS.md
-    const srcAgentsMd = path.join(templateRoot, 'AGENTS.md');
-    const destAgentsMd = path.join(targetDir, 'AGENTS.md');
-    let agentsMdContent = await fs.readFile(srcAgentsMd, 'utf-8');
-    
+    const srcAgentsMd = path.join(templateRoot, "AGENTS.md");
+    const destAgentsMd = path.join(targetDir, "AGENTS.md");
+    let agentsMdContent = await fs.readFile(srcAgentsMd, "utf-8");
+
     let agentsMdExists = false;
     try {
       await fs.access(destAgentsMd);
       agentsMdExists = true;
     } catch {}
-    
+
     if (agentsMdExists && !overwriteMode) {
       // Safe Merge mode
-      let existingContent = await fs.readFile(destAgentsMd, 'utf-8');
-      if (existingContent.includes('UNIVERSAL AGENT DIRECTIVES')) {
-        console.log('! AGENTS.md already contains the universal directives block. Skipping merge.');
+      let existingContent = await fs.readFile(destAgentsMd, "utf-8");
+      if (existingContent.includes("UNIVERSAL AGENT DIRECTIVES")) {
+        console.log(
+          "! AGENTS.md already contains the universal directives block. Skipping merge.",
+        );
       } else {
         const mergedContent = `${existingContent}\n\n# --- UNIVERSAL AGENT DIRECTIVES ---\n\n${agentsMdContent}`;
         await fs.writeFile(destAgentsMd, mergedContent);
-        console.log('✓ Integrated universal directives into existing AGENTS.md');
+        console.log(
+          "✓ Integrated universal directives into existing AGENTS.md",
+        );
       }
     } else {
       // Overwrite/Write new
       await fs.writeFile(destAgentsMd, agentsMdContent);
-      console.log('✓ Wrote AGENTS.md');
+      console.log("✓ Wrote AGENTS.md");
     }
-    
+
     // Handle Skills (Compile with Includes)
     for (const file of selectedFiles) {
       const srcFile = path.join(templateSkills, file);
       const destFile = path.join(destSkills, file);
-      
+
       try {
         const compiled = await compileTemplate(srcFile, templateShared);
         await fs.writeFile(destFile, compiled);
@@ -243,7 +322,7 @@ async function main() {
         console.error(`✗ Error processing skill ${file}: ${err.message}`);
       }
     }
-    
+
     // Handle Scripts if exist
     let scriptsCopied = 0;
     try {
@@ -257,14 +336,15 @@ async function main() {
           await fs.chmod(destPath, 0o755); // Make scripts executable
           scriptsCopied++;
         }
-        console.log(`✓ Copied ${scriptsCopied} utility scripts to .agents/scripts/`);
+        console.log(
+          `✓ Copied ${scriptsCopied} utility scripts to .agents/scripts/`,
+        );
       }
     } catch {}
-    
-    console.log('\n=============================================');
-    console.log('   Installation completed successfully!      ');
-    console.log('=============================================\n');
-    
+
+    console.log("\n=============================================");
+    console.log("   Installation completed successfully!      ");
+    console.log("=============================================\n");
   } catch (err) {
     console.error(`✗ Installation failed: ${err.message}`);
     process.exit(1);

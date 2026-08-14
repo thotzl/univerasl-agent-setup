@@ -5,6 +5,7 @@
 The **Testing Strategies** module introduces unyielding commandments for code verification, mandating a reproduction-first approach and clear testing boundaries.
 
 ### Why This Skill Exists
+
 Agents frequently claim success without running or writing tests, or write slow, flaky end-to-end (E2E) integration tests for simple logical checks that should be handled by lightweight unit tests.
 
 ---
